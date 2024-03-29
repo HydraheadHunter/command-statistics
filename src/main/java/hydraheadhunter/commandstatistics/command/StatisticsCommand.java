@@ -1,5 +1,6 @@
 package hydraheadhunter.commandstatistics.command;
 
+import com.google.common.collect.Lists;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -12,6 +13,8 @@ import hydraheadhunter.commandstatistics.command.feedback.*;
 import hydraheadhunter.commandstatistics.command.suggestionprovider.BreakableItemSuggestionProvider;
 import hydraheadhunter.commandstatistics.command.suggestionprovider.CustomStatsSuggestionProvider;
 import net.minecraft.block.Block;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.pattern.CachedBlockPosition;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.*;
 import net.minecraft.command.suggestion.SuggestionProviders;
@@ -23,14 +26,21 @@ import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.ServerStatHandler;
 import net.minecraft.stat.StatType;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
+import net.minecraft.util.Clearable;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
+//TODO implement block, item, entityType tags to allow bundling item stats in query and record 'all music disks,'
+// eg All music disks, any diamond armors
 public class StatisticsCommand {
      private static final String STATISTICS            = "statistics" ;     private static final String TARGETS               = "targets"    ;
 
@@ -44,8 +54,8 @@ public class StatisticsCommand {
      private static final String KILLED                = "killed"     ;     private static final String KILLED_BY             = "killed_by"  ;
      private static final String CUSTOM                = "custom"     ;
 
-     private static final String STAT                  = "stat"       ;
-     private static final String AMOUNT                = "amount"     ;     private static final String OBJECTIVE             = "objective"  ;
+     private static final String STAT                  = "stat"       ;     private static final String AMOUNT                = "amount"     ;
+     private static final String OBJECTIVE             = "objective"  ;
 
      //Execution OP 1 (Cannot change player statistics )
 // /statistics query @p <statType<T (Block | Item | EntityType<?> | Identifier )>> <stat<T>>
@@ -247,7 +257,7 @@ public class StatisticsCommand {
                int statValue = handler.getStat(statType, statSpecified);
                handler.save();
 
-               QueryFeedback.provideFeedback(source, player, statType, statSpecified, statValue);
+               source.sendFeedback(() -> QueryFeedback.provideFeedback(player, statType, statSpecified, statValue),false);
 
                toReturn +=statValue;
           }
@@ -2104,4 +2114,7 @@ public class StatisticsCommand {
      }
 
 
+     
+     
+     
 }
