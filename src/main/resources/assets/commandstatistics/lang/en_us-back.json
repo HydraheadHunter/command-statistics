@@ -15,6 +15,8 @@
   "commandstatistics.feedback.query.dual"                 : "'Twas so nice, %s %s %s twice."                     ,
   "commandstatistics.feedback.query.plural"               : "%s has %s %s %s times."                             ,
   "commandstatistics.feedback.query.plural.a_lot"         : "%s's been busy. They's %s %s %s times!"             ,
+  "commandstatistics.feedback.query.killed.null"          : "killed %s's been busy. They's %s %s %s times!"             ,
+  "commandstatistics.feedback.query.plural.a_lot"         : "%s's been busy. They's %s %s %s times!"             ,
 
 
   "_comment-2": "Conjugating words in flavors of psuedo-gender(linguistics) bullshit"                                   ,

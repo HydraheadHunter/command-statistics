@@ -24,14 +24,13 @@ public class QueryFeedback {
      private static final int NO_SUCH_STAT_TYPE= -1;
      private static final int[] A_LOT = {100000, 50000, 5000, -1};
      
-     
      private static final String EMPTY         = ""           ;
      private static final String NEG_COUNT     = ".neg"       ;
      private static final String NULL_COUNT    = ".null"      ;
      private static final String SINGLE_COUNT  = ".single"    ;
      private static final String DUAL_COUNT    = ".dual"      ;
      private static final String PLURAL_COUNT  = ".plural"    ;
-     private static final String A_LOT_COUNT   = ".a_lot"     ;
+     private static final String A_LOT_COUNT   = ".alot"      ;
      private static final String KILLED        = ".killed"    ;
      private static final String KILLED_BY     = ".killed_by" ;
      
@@ -41,24 +40,19 @@ public class QueryFeedback {
           String formatKey       = chooseFormatKey(statTypeCode, statType, statSpecific, plurality);
           Text playerName        = player.getName();
           Text statTypeText      = statType.getName();
-          Text statSpecificText ;
+          Text statSpecificText  = ConjugateStat.conjugateStat( statSpecific,statValue );
           Text statValueText     = Text.literal( String.valueOf(statValue) );
 
           
           
-          if      (statType.equals(Stats.MINED     )) {
-               statSpecificText = ConjugateStat.conjugateStat( statSpecific,statValue );
+          
+          if (statType.equals(Stats.CUSTOM)){ statSpecificText = Text.of( ((Identifier)    statSpecific).toString());}
 
+          if (source.length >= 1) {
+               Text finalStatSpecificText = statSpecificText;
+               source[0].sendFeedback(()->stringifiedTranslatable( formatKey, playerName, statTypeText, finalStatSpecificText, statValueText ),true);
           }
-          else if (statType.equals(Stats.CRAFTED   ) || statType.equals(Stats.USED ) || statType.equals(Stats.BROKEN) ||statType.equals(Stats.PICKED_UP ) || statType.equals(Stats.DROPPED   )) {
-               statSpecificText = ConjugateStat.conjugateStat( statSpecific,statValue );
-          }
-          else if (statType.equals(Stats.KILLED    )) { statSpecificText =          ((EntityType<?>) statSpecific).getName()  ;}
-          else if (statType.equals(Stats.KILLED_BY )) { statSpecificText =          ((EntityType<?>) statSpecific).getName()  ;}
-          else                   /*Stats.CUSTOM*/     { statSpecificText = Text.of( ((Identifier)    statSpecific).toString());}
-
-     if (source.length >= 1) source[0].sendFeedback(()->stringifiedTranslatable( formatKey, playerName, statTypeText, statSpecificText, statValueText ),true);
-     return stringifiedTranslatable( formatKey, playerName, statTypeText, statSpecificText, statValueText );
+          return stringifiedTranslatable( formatKey, playerName, statTypeText, statSpecificText, statValueText );
      }
      
      private static <T> int    castStat        ( T object ) {

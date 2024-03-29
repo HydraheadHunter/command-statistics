@@ -10,7 +10,17 @@
   "commandstatistics.feedback.set.default.score"           : "%s %s %s changed from %s to %s from %s"                   ,
   "commandstatistics.feedback.reduce.default.score"        : "%s %s %s decreased from %s by %s from %s to %s"           ,
 
+  "commandstatistics.feedback.query.null"                 : "%s ain't never %s %s before, partner."              ,
+  "commandstatistics.feedback.query.single"               : "%s done did %s %s once."                            ,
+  "commandstatistics.feedback.query.dual"                 : "'Twas so nice, %s %s %s twice."                     ,
+  "commandstatistics.feedback.query.plural"               : "%s has %s %s %s times."                             ,
+  "commandstatistics.feedback.query.plural.alot"          : "%s's been busy. They's %s %s %s times!"             ,
 
+  "commandstatistics.feedback.query.null.killed"          : "%s ain't never %s %s before, partner."              ,
+  "commandstatistics.feedback.query.single.killed"        : "%s done did %s %s once."                            ,
+  "commandstatistics.feedback.query.dual.killed"          : "'Twas so nice, %s %s %s twice."                     ,
+  "commandstatistics.feedback.query.plural.killed"        : "%s has %s %s %s times."                             ,
+  "commandstatistics.feedback.query.plural.alot.killed"   : "%s's been busy. They's %s %s %s times!"             ,
 
 
   "_comment-2": "Conjugating words in flavors of psuedo-gender(linguistics) bullshit"                                   ,
@@ -219,13 +229,6 @@
   "commandstatistics.grammar.indefinite.plural.gender_14"        : "unused in en-US"                                    ,
   "commandstatistics.grammar.indefinite.plural.gender_15"        : "unused in en-US"                                    ,
 
-  "commandstatistics.feedback.query.null"                 : "%s ain't never %s %s before, partner."              ,
-  "commandstatistics.feedback.query.single"               : "%s done did %s %s once."                            ,
-  "commandstatistics.feedback.query.dual"                 : "'Twas so nice, %s %s %s twice."                     ,
-  "commandstatistics.feedback.query.plural"               : "%s has %s %s %s times."                             ,
-  "commandstatistics.feedback.query.plural.alot"          : "%s's been busy. They's %s %s %s times!"             ,
-  "commandstatistics.feedback.query.gen.mass"             : "%s has %s %s %s."                                   ,
-  "commandstatistics.feedback.query.lot.mass"             : "%s's been busy. They's %s %s %s!"                   ,
 
   "commandstatistics.stattype.mined.past"            : "mined"                                     ,
   "commandstatistics.stattype.mined.present"         : "mine"                                      ,
