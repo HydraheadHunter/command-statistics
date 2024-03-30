@@ -128,7 +128,7 @@ public class StatisticsCommand {
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(BROKEN)
                              .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access))
-                                                            .suggests( new BreakableItemSuggestionProvider())
+                                                            .suggests( BreakableItemSuggestionProvider.BREAKABLE_ITEMS)
                                                        .executes(                                                       context -> executeQUERY(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -343,7 +343,7 @@ public class StatisticsCommand {
                          .then( CommandManager.literal(BROKEN)
                               .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access)))
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
-                                                            .suggests( new BreakableItemSuggestionProvider())
+                                                            .suggests( BreakableItemSuggestionProvider.BREAKABLE_ITEMS)
                                                        .executes(                                                       context -> executeRECORD(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -597,7 +597,7 @@ public class StatisticsCommand {
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(BROKEN)
                              .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access))
-                                                            .suggests( new BreakableItemSuggestionProvider())
+                                                            .suggests( BreakableItemSuggestionProvider.BREAKABLE_ITEMS)
                                                        .executes(                                                       context -> executeADD(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -855,7 +855,7 @@ public class StatisticsCommand {
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(BROKEN)
                              .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access)))
-                                                            .suggests( new BreakableItemSuggestionProvider())
+                                                            .suggests( BreakableItemSuggestionProvider.BREAKABLE_ITEMS)
                                   .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
                                                        .executes(                                                       context -> executeADD(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
@@ -1133,7 +1133,7 @@ public class StatisticsCommand {
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(BROKEN)
                              .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access))
-                                                            .suggests( new BreakableItemSuggestionProvider())
+                                                            .suggests( BreakableItemSuggestionProvider.BREAKABLE_ITEMS)
                                                        .executes(                                                       context -> executeSET(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1391,7 +1391,7 @@ public class StatisticsCommand {
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(BROKEN)
                               .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access)))
-                                   .suggests( new BreakableItemSuggestionProvider())
+                                   .suggests( BreakableItemSuggestionProvider.BREAKABLE_ITEMS)
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
                                              .executes(                                                       context -> executeSET(
                                                        (ServerCommandSource)                             context.getSource()                                         ,
@@ -1672,7 +1672,7 @@ public class StatisticsCommand {
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(BROKEN)
                              .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access))
-                                                            .suggests( new BreakableItemSuggestionProvider())
+                                                            .suggests( BreakableItemSuggestionProvider.BREAKABLE_ITEMS)
                                                        .executes(                                                       context -> executeREDUCE(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1930,7 +1930,7 @@ public class StatisticsCommand {
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(BROKEN)
                               .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access)))
-                                   .suggests( new BreakableItemSuggestionProvider())
+                                   .suggests( BreakableItemSuggestionProvider.BREAKABLE_ITEMS)
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
                                              .executes(                                                       context -> executeREDUCE(
                                                        (ServerCommandSource)                             context.getSource()                                         ,

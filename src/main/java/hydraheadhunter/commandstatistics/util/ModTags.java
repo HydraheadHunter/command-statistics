@@ -76,7 +76,7 @@ public class ModTags {
           }
      }
 
-     public static class Entities{
+     public static class Entity_Types {
           public static final TagKey<EntityType<?>> IS_IRREGULAR_NULL         = createTag("is_irregular_null"      );
           public static final TagKey<EntityType<?>> IS_IRREGULAR_SINGLE       = createTag("is_irregular_single"    );
           public static final TagKey<EntityType<?>> IS_IRREGULAR_DUAL         = createTag("is_irregular_dual"      );

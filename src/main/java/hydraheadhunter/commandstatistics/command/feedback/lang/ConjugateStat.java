@@ -26,10 +26,10 @@ public class ConjugateStat {
      private static final int INDEFINITE = 1;
      private static final int DEFINITE = 2;
      
-     private static final String AIR_KEY               = "block.minecraft.air";
-     private static final String GRAMMAR_KEY_ROOT = CommandStatistics.MOD_ID + ".grammar";
-     private static final String AFFIX_KEY_ROOT = GRAMMAR_KEY_ROOT + ".affix";
-     private static final String DEFINITE_KEY_ROOT = GRAMMAR_KEY_ROOT + ".definite";
+     private static final String AIR_KEY             = "block.minecraft.air";
+     private static final String GRAMMAR_KEY_ROOT    = CommandStatistics.MOD_ID + ".grammar";
+     private static final String AFFIX_KEY_ROOT      = GRAMMAR_KEY_ROOT + ".affix";
+     private static final String DEFINITE_KEY_ROOT   = GRAMMAR_KEY_ROOT + ".definite";
      private static final String INDEFINITE_KEY_ROOT = GRAMMAR_KEY_ROOT + ".indefinite";
      private static final String GENDER_ROOT = ".gender_";
      
@@ -40,6 +40,7 @@ public class ConjugateStat {
      private static final String PLURAL_COUNT = ".plural";
      private static final String IRREGULAR = ".irregular";
      private static final String REGULAR = "";
+     
      
      public static <T> MutableText conjugateStat( T statSpecific, int statValue ) {
      //Set all logic variable
@@ -99,7 +100,7 @@ public class ConjugateStat {
                }
                catch (ClassCastException e2) {
                     try {
-                         ( (EntityType<?>) object ).isIn(ModTags.Entities.IS_DEFINITE);
+                         ( (EntityType<?>) object ).isIn(ModTags.Entity_Types.IS_DEFINITE);
                          return ENTITY;
                     }
                     catch (ClassCastException e3) {
@@ -142,7 +143,7 @@ public class ConjugateStat {
                case ITEM:
                     return((Item)object ).getDefaultStack().isIn( ModTags.Items.IS_INDEFINITE );
                case ENTITY:
-                    return((EntityType<?>)object ).isIn( ModTags.Entities.IS_INDEFINITE );
+                    return((EntityType<?>)object ).isIn( ModTags.Entity_Types.IS_INDEFINITE );
                
                default:
                     return false;
@@ -158,7 +159,7 @@ public class ConjugateStat {
                     case ITEM:
                          return ( (Item) object ).getDefaultStack().isIn(ModTags.Items.IS_DEFINITE);
                     case ENTITY:
-                         return ( (EntityType<?>) object ).isIn(ModTags.Entities.IS_DEFINITE);
+                         return ( (EntityType<?>) object ).isIn(ModTags.Entity_Types.IS_DEFINITE);
                     default:
                          return false;
                }
@@ -190,12 +191,12 @@ public class ConjugateStat {
                     }
                case ENTITY:
                     EntityType<?> entityType = ( (EntityType<?>) object );
-                    if (entityType.isIn(ModTags.Entities.IS_IRREGULAR_MASS)) return IRREGULAR;
+                    if (entityType.isIn(ModTags.Entity_Types.IS_IRREGULAR_MASS)) return IRREGULAR;
                     switch (count) {
-                         case 0:  return entityType.isIn(ModTags.Entities.IS_IRREGULAR_NULL  ) ? IRREGULAR : REGULAR;
-                         case 1:  return entityType.isIn(ModTags.Entities.IS_IRREGULAR_SINGLE) ? IRREGULAR : REGULAR;
-                         case 2:  return entityType.isIn(ModTags.Entities.IS_IRREGULAR_DUAL  ) ? IRREGULAR : REGULAR;
-                         default: return entityType.isIn(ModTags.Entities.IS_IRREGULAR_PLURAL) ? IRREGULAR : REGULAR;
+                         case 0:  return entityType.isIn(ModTags.Entity_Types.IS_IRREGULAR_NULL  ) ? IRREGULAR : REGULAR;
+                         case 1:  return entityType.isIn(ModTags.Entity_Types.IS_IRREGULAR_SINGLE) ? IRREGULAR : REGULAR;
+                         case 2:  return entityType.isIn(ModTags.Entity_Types.IS_IRREGULAR_DUAL  ) ? IRREGULAR : REGULAR;
+                         default: return entityType.isIn(ModTags.Entity_Types.IS_IRREGULAR_PLURAL) ? IRREGULAR : REGULAR;
                     }
                default:           return REGULAR;
           }
@@ -254,22 +255,22 @@ public class ConjugateStat {
                     break;
                case ENTITY:
                     EntityType<?> entityType = ( (EntityType<?>) object );
-                    toReturn[0] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_0)  ) ?  2 : 1;
-                    toReturn[0] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_1)  ) ?  3 : 1;
-                    toReturn[0] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_2)  ) ?  5 : 1;
-                    toReturn[0] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_3)  ) ?  7 : 1;
-                    toReturn[0] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_4)  ) ? 11 : 1;
-                    toReturn[0] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_5)  ) ? 13 : 1;
-                    toReturn[0] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_6)  ) ? 17 : 1;
-                    toReturn[0] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_7)  ) ? 19 : 1;
-                    toReturn[0] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_8)  ) ? 23 : 1;
-                    toReturn[1] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_9)  ) ?  2 : 1;
-                    toReturn[1] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_10) ) ?  3 : 1;
-                    toReturn[1] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_11) ) ?  5 : 1;
-                    toReturn[1] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_12) ) ?  7 : 1;
-                    toReturn[1] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_13) ) ? 11 : 1;
-                    toReturn[1] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_14) ) ? 13 : 1;
-                    toReturn[1] *= ( entityType.isIn(ModTags.Entities.IS_GENDER_15) ) ? 17 : 1;
+                    toReturn[0] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_0)  ) ?  2 : 1;
+                    toReturn[0] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_1)  ) ?  3 : 1;
+                    toReturn[0] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_2)  ) ?  5 : 1;
+                    toReturn[0] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_3)  ) ?  7 : 1;
+                    toReturn[0] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_4)  ) ? 11 : 1;
+                    toReturn[0] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_5)  ) ? 13 : 1;
+                    toReturn[0] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_6)  ) ? 17 : 1;
+                    toReturn[0] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_7)  ) ? 19 : 1;
+                    toReturn[0] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_8)  ) ? 23 : 1;
+                    toReturn[1] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_9)  ) ?  2 : 1;
+                    toReturn[1] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_10) ) ?  3 : 1;
+                    toReturn[1] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_11) ) ?  5 : 1;
+                    toReturn[1] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_12) ) ?  7 : 1;
+                    toReturn[1] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_13) ) ? 11 : 1;
+                    toReturn[1] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_14) ) ? 13 : 1;
+                    toReturn[1] *= ( entityType.isIn(ModTags.Entity_Types.IS_GENDER_15) ) ? 17 : 1;
                     break;
           }
           return toReturn;
