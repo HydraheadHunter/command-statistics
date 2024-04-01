@@ -33,20 +33,14 @@ public class ConjugateStat {
      private static final String INDEFINITE_KEY_ROOT = GRAMMAR_KEY_ROOT + ".indefinite";
      private static final String GENDER_ROOT = ".gender_";
      
-     private static final String NEG_COUNT = ".neg";
-     private static final String NULL_COUNT = ".null";
-     private static final String SINGLE_COUNT = ".single";
-     private static final String DUAL_COUNT = ".dual";
-     private static final String PLURAL_COUNT = ".plural";
      private static final String IRREGULAR = ".irregular";
      private static final String REGULAR = "";
      
      
-     public static <T> MutableText conjugateStat( T statSpecific, int statValue ) {
+     public  static <T> MutableText conjugateStat( T statSpecific, int statValue, String plurality ) {
      //Set all logic variable
           int objectType = castStat_2(statSpecific);
           String workingTranslationKey = chooseDefaultKey_2(objectType, statSpecific);
-          String plurality = choosePlurality_2(statValue);
           String irregularity = isIrregular(objectType, statSpecific, statValue);
           int article = chooseArticle_2(objectType, statSpecific);
           int[] genders = chooseGender(objectType, statSpecific);
@@ -62,9 +56,7 @@ public class ConjugateStat {
      //get affixed word
                rootWord = Text.translatable(workingTranslationKey);
                affixedWord = rootWord;
-               if (isGender(genders, 0))
-                    affixedWord = Text.stringifiedTranslatable(AFFIX_KEY_ROOT + plurality + GENDER_ROOT + "0", rootWord);
-               for (int ii = 1;ii <= 15;ii += 1) {
+               for (int ii = 0;ii <= 15;ii += 1) {
                     if (isGender(genders, ii))
                          affixedWord = Text.stringifiedTranslatable(AFFIX_KEY_ROOT + plurality + GENDER_ROOT + String.valueOf(ii), affixedWord);
                }
@@ -121,13 +113,6 @@ public class ConjugateStat {
           }
      }
      
-     private static     String choosePlurality_2  ( int   count                             ) {
-          return count == 0 ? NULL_COUNT :
-                 count == 1 ? SINGLE_COUNT :
-                 count == 2 ? DUAL_COUNT :
-                 count >= 3 ? PLURAL_COUNT :
-                 NEG_COUNT;
-     }
      private static <T> int    chooseArticle_2    ( int   objectType,  T object             ) {
           if (isIndefinite_2(objectType, object)) return INDEFINITE;
           if (isDefinite(objectType, object)) return DEFINITE;

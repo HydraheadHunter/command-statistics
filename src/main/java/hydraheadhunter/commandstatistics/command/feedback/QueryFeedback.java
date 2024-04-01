@@ -1,22 +1,23 @@
 package hydraheadhunter.commandstatistics.command.feedback;
 
+import hydraheadhunter.commandstatistics.CommandStatistics;
 import hydraheadhunter.commandstatistics.command.feedback.lang.ConjugateStat;
 import hydraheadhunter.commandstatistics.command.feedback.lang.ConjugateStatType;
+import hydraheadhunter.commandstatistics.command.feedback.lang.FormatCustom;
 import hydraheadhunter.commandstatistics.util.ModTags;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stats;
 import net.minecraft.stat.StatType;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
+import static hydraheadhunter.commandstatistics.util.ID_IsIn.customStatIsIn;
 import static net.fabricmc.fabric.api.tag.convention.v1.TagUtil.isIn;
 import static net.minecraft.text.Text.stringifiedTranslatable;
 
@@ -26,8 +27,10 @@ public class QueryFeedback {
      private static final String DEFAULT_CUSTOM_KEY = "commandstatistics.feedback.query.custom";
      private static final int BLOCK  = 0;     private static final int ITEM   = 1;     private static final int ENTITY = 2;     private static final int ID     = 3;
      private static final int NO_SUCH_STAT_TYPE= -1;
-     private static final int[] A_LOT = {100000, 50000, 5000, -1};
+     private static final int[] A_LOT = {100000, 50000, 5000, 100000};
      
+     private static final String PLURALITY_BASE_KEY = CommandStatistics.MOD_ID + ".grammar.plurality";
+
      private static final String EMPTY         = ""           ;
      private static final String NEG_COUNT     = ".neg"       ;
      private static final String NULL_COUNT    = ".null"      ;
@@ -43,13 +46,14 @@ public class QueryFeedback {
      public  static <T> MutableText provideFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpecific, int statValue, ServerCommandSource... source ){
           if (statType.equals(Stats.CUSTOM)) return provideCustomFeedback(player, (Identifier) statSpecific, statValue, source);
           
-          int statTypeCode       = castStat(statSpecific);
-          String plurality       = choosePlurality(statTypeCode, statValue);
-          String formatKey       = chooseFormatKey(statTypeCode, statType, statSpecific, plurality);
-          Text playerName        = player.getName();
-          Text statTypeText      = ConjugateStatType.conjugateStatType(statType, statValue);
-          Text statSpecificText  = ConjugateStat.conjugateStat( statSpecific,statValue );
-          Text statValueText     = Text.literal( String.valueOf(statValue) );
+          int statTypeCode          = castStat(statSpecific);
+          String pluralityFormat    = choosePlurality(statTypeCode, statValue, true);
+          String pluralityConjugate = choosePlurality(statTypeCode, statValue, false);
+          String formatKey          = chooseFormatKey(statTypeCode, statType, statSpecific, pluralityFormat);
+          Text playerName           = player.getName();
+          Text statTypeText         = ConjugateStatType.conjugateStatType(statType, pluralityConjugate);
+          Text statSpecificText     = ConjugateStat.conjugateStat( statSpecific,statValue, pluralityConjugate );
+          Text statValueText        = Text.literal( String.valueOf(statValue) );
           
           if (source.length >= 1) {
                Text finalStatSpecificText = statSpecificText;
@@ -58,23 +62,27 @@ public class QueryFeedback {
           return stringifiedTranslatable( formatKey, playerName, statTypeText, statSpecificText, statValueText );
      }
      
-     private static <T> int    castStat        ( T object ) {
-          try { ((Block        ) object ).getName(); return BLOCK ; } catch (ClassCastException e1) { String block = "not Block"  ;}
-          try { ((Item         ) object ).getName(); return ITEM  ; } catch (ClassCastException e2) { String Item  = "not Item"   ;}
-          try { ((EntityType<?>) object ).getName(); return ENTITY; } catch (ClassCastException e3) { String Entit = "not Entity" ;}
-          try { ((Identifier   ) object ).getPath(); return ID    ; } catch (ClassCastException e3) { String Entit = "not Entity" ;}
+     private static <T> int    castStat                (                                         T statSpecific                                                   ){
+          try { ((Block        ) statSpecific ).getName(); return BLOCK ; } catch (ClassCastException e1) { String block = "not Block"  ;}
+          try { ((Item         ) statSpecific ).getName(); return ITEM  ; } catch (ClassCastException e2) { String Item  = "not Item"   ;}
+          try { ((EntityType<?>) statSpecific ).getName(); return ENTITY; } catch (ClassCastException e3) { String Entit = "not Entity" ;}
+          try { ((Identifier   ) statSpecific ).getPath(); return ID    ; } catch (ClassCastException e3) { String Entit = "not Entity" ;}
           return NO_SUCH_STAT_TYPE;
           }
-     private static     String choosePlurality ( int statTypeCode,                                       int statValue ){
+     private static     String choosePlurality         ( int statTypeCode,                                                        int statValue, boolean isFormat ){
           switch(statValue){
-               case 0: return NULL_COUNT;
-               case 1: return SINGLE_COUNT;
-               case 2: return DUAL_COUNT;
-               default: return statValue >= A_LOT[statTypeCode] ? PLURAL_COUNT + A_LOT_COUNT : PLURAL_COUNT;
+               case 0: return  (isFormat) ? NULL_COUNT   : (Text.translatable( PLURALITY_BASE_KEY + NULL_COUNT  )).getString();
+               case 1: return  (isFormat) ? SINGLE_COUNT : (Text.translatable( PLURALITY_BASE_KEY + SINGLE_COUNT)).getString();
+               case 2: return  (isFormat) ? DUAL_COUNT   : (Text.translatable( PLURALITY_BASE_KEY + DUAL_COUNT  )).getString();
+               default:
+                    String conPlural = (Text.translatable( PLURALITY_BASE_KEY + PLURAL_COUNT  )).getString();
+                    String conA_Lot  = (Text.translatable( PLURALITY_BASE_KEY + A_LOT_COUNT   )).getString();
+                    return (isFormat) ?
+                    statValue >= A_LOT[statTypeCode] ? PLURAL_COUNT + A_LOT_COUNT : PLURAL_COUNT:
+                    statValue >= A_LOT[statTypeCode] ? conPlural    + conA_Lot    : conPlural   ;
           }
      }
-     private static <T> String chooseFormatKey ( int statTypeCode, StatType<T> statType, T statSpecific, String plurality ) {
-          if (statType.equals(Stats.CUSTOM)) return chooseCustomKey(statSpecific);
+     private static <T> String chooseFormatKey         ( int statTypeCode, StatType<T> statType, T statSpecific, String plurality                                 ){
           String toReturn =DEFAULT_KEY.substring(0,DEFAULT_KEY.length()-8) + plurality;
           toReturn += (statType.equals(Stats.KILLED    )) ? KILLED   :EMPTY;
           toReturn += (statType.equals(Stats.KILLED_BY )) ? KILLED_BY:EMPTY;
@@ -82,10 +90,10 @@ public class QueryFeedback {
           
           return toReturn;
      }
-     private static <T> String chooseCustomKey         (                   T statSpecific ){
+     private static <T> String chooseCustomKey         (                                         T statSpecific                                                   ){
           return DEFAULT_KEY; //TODO in v0.7.0 Implement all this bullshit-ass nonsense.
      }
-     private static <T> String chooseSpecialEntityKey  ( int statTypeCode, StatType<T> statType, T statSpecific){
+     private static <T> String chooseSpecialEntityKey  ( int statTypeCode, StatType<T> statType, T statSpecific                                                   ){
           if (statTypeCode != ENTITY) return EMPTY;
           EntityType<?> entityType = ((EntityType<?>)statSpecific);
           String        transKey   = entityType.getTranslationKey();
@@ -97,37 +105,22 @@ public class QueryFeedback {
           if ( statType.equals(Stats.KILLED_BY) && isSpecialKby) return subTransKey;
           return EMPTY;
      }
-
+     
      // Stats.CUSTOM methods.
      private static <T> MutableText provideCustomFeedback( ServerPlayerEntity player, Identifier statSpecific, int statValue, ServerCommandSource... source ){
-          String plurality       = choosePlurality(statValue);
-          String formatKey       = chooseFormatKey(statSpecific, plurality);
+
+          String formatKey       = FormatCustom.provideFormat(statSpecific, statValue);
           Text playerName        = player.getName();
-          if ( Stats.CUSTOM.getRegistry().getEntry(statSpecific).isIn(ModTags.Identifiers.IS_GENDER_0) );
-               System.out.println();
-          return stringifiedTranslatable(formatKey,playerName,String.valueOf(statValue));
-     }
-     
-     
-     private static String  choosePlurality ( int statValue ){
-          switch(statValue){
-               case 0: return  NULL_COUNT;
-               case 1: return  SINGLE_COUNT;
-               case 2: return  DUAL_COUNT;
-               default: return PLURAL_COUNT;
-          }
-     }
-     private static String  chooseFormatKey ( Identifier statSpecific, String plurality ) {
-          String statSpecificString= (statSpecific.toString()).replace(':','.');
-          if ( statSpecificString.substring(0,MINECRAFT.length()).equals(MINECRAFT) )
-               statSpecificString = statSpecificString.substring(MINECRAFT.length());
-          else
-               statSpecificString = "." + statSpecificString;
-          return DEFAULT_CUSTOM_KEY + statSpecificString + plurality;
+          String verbKey         = FormatCustom.provideVerb(statSpecific, statValue);
+          Text verbText          = Text.translatable(verbKey).formatted(Formatting.GOLD);
+          Text numberText        = FormatCustom.provideNumberFormat(statSpecific, statValue);
           
+          if (customStatIsIn(statSpecific, ModTags.Identifiers.ARG_ORDER_PLAYER_VALUE_VERB))
+               return stringifiedTranslatable(formatKey,playerName,numberText,verbText);
+          if (customStatIsIn(statSpecific, ModTags.Identifiers.ARG_ORDER_VALUE_PLAYER_VERB))
+               return stringifiedTranslatable(formatKey,numberText,playerName,verbText);
+          
+          return stringifiedTranslatable(formatKey,playerName, verbText, numberText);
      }
-     
-     
-     
      
 }

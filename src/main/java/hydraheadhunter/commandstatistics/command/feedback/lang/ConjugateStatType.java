@@ -54,11 +54,10 @@ public class ConjugateStatType {
      private static final String CUSTOM     = ".custom"    ;
      private static final String EMPTY      = ""           ;
      
-     public static MutableText conjugateStatType( StatType<?> statType, int statValue ) {
+     public static MutableText conjugateStatType( StatType<?> statType, String plurality ) {
      //Set all logic variable
           String workingKey = BASE_TENSE_KEY;
           String statTypeKey = chooseStatType(statType);
-          String plurality= choosePlurality(statValue);
      
           workingKey += statTypeKey + plurality;
           String tenseKey = Text.translatable(workingKey).getString();

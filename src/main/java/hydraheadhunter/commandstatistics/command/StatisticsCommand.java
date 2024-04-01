@@ -1,10 +1,7 @@
 package hydraheadhunter.commandstatistics.command;
 
-import com.google.common.collect.Lists;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -12,39 +9,28 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import hydraheadhunter.commandstatistics.command.feedback.*;
 import hydraheadhunter.commandstatistics.command.suggestionprovider.BreakableItemSuggestionProvider;
 import hydraheadhunter.commandstatistics.command.suggestionprovider.CustomStatsSuggestionProvider;
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.pattern.CachedBlockPosition;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.*;
 import net.minecraft.command.suggestion.SuggestionProviders;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.scoreboard.ScoreHolder;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.ServerStatHandler;
 import net.minecraft.stat.StatType;
 import net.minecraft.stat.Stats;
-import net.minecraft.text.Text;
-import net.minecraft.util.Clearable;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
+//TODO move QUERY's OP level to a config file
 //TODO implement block, item, entityType tags to allow bundling item stats in query and record 'all music disks,'
 // eg All music disks, any diamond armors
 public class StatisticsCommand {
      private static final String STATISTICS            = "statistics" ;     private static final String TARGETS               = "targets"    ;
 
-     private static final String QUERY                 = "query"      ;     private static final String RECORD                = "record"     ;
+     private static final String QUERY                 = "query"      ;     private static final String STORE                 = "store"      ;
      private static final String ADD                   = "add"        ;     private static final String SET                   = "set"        ;
      private static final String REDUCE                = "reduce"     ;
 
@@ -264,8 +250,8 @@ public class StatisticsCommand {
           return toReturn;}
 
 // /statistics record @p <statType<T (Block | Item | EntityType<?> | Identifier )>> <stat<T>> <objective>
-     public static     void registerRECORD      (CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
-          String executionMode = RECORD;
+     public static     void registerSTORE(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
+          String executionMode = STORE;
           int executionOP = 1;
 
           dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
@@ -274,7 +260,7 @@ public class StatisticsCommand {
                          .then( CommandManager.literal(MINED)
                               .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, BlockStateArgumentType.blockState(access)))
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
-                                                       .executes(                                                       context -> executeRECORD(
+                                                       .executes(                                                       context -> executeSTORE(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
                                                                       Stats.MINED                                       /* - - - - - - - - - */                                     ,
@@ -297,7 +283,7 @@ public class StatisticsCommand {
                          .then( CommandManager.literal(CRAFTED)
                               .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access)))
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
-                                                       .executes(                                                       context -> executeRECORD(
+                                                       .executes(                                                       context -> executeSTORE(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
                                                                       Stats.CRAFTED                                     /* - - - - - - - - - */                                     ,
@@ -320,7 +306,7 @@ public class StatisticsCommand {
                          .then( CommandManager.literal(USED)
                               .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access)))
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
-                                                       .executes(                                                       context -> executeRECORD(
+                                                       .executes(                                                       context -> executeSTORE(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
                                                                       Stats.USED                                        /* - - - - - - - - - */                                     ,
@@ -344,7 +330,7 @@ public class StatisticsCommand {
                               .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access)))
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
                                                             .suggests( BreakableItemSuggestionProvider.BREAKABLE_ITEMS)
-                                                       .executes(                                                       context -> executeRECORD(
+                                                       .executes(                                                       context -> executeSTORE(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
                                                                       Stats.BROKEN                                      /* - - - - - - - - - */                                     ,
@@ -367,7 +353,7 @@ public class StatisticsCommand {
                          .then( CommandManager.literal(PICKED_UP)
                               .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access)))
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
-                                                       .executes(                                                       context -> executeRECORD(
+                                                       .executes(                                                       context -> executeSTORE(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
                                                                       Stats.PICKED_UP                                   /* - - - - - - - - - */                                     ,
@@ -390,7 +376,7 @@ public class StatisticsCommand {
                          .then( CommandManager.literal(DROPPED)
                               .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, ItemStackArgumentType.itemStack(access)))
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
-                                                       .executes(                                                       context -> executeRECORD(
+                                                       .executes(                                                       context -> executeSTORE(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
                                                                       Stats.DROPPED                                     /* - - - - - - - - - */                                     ,
@@ -414,7 +400,7 @@ public class StatisticsCommand {
                               .then(((RequiredArgumentBuilder)CommandManager.argument(STAT, RegistryEntryArgumentType.registryEntry(access, RegistryKeys.ENTITY_TYPE)))
                                                             .suggests(SuggestionProviders.SUMMONABLE_ENTITIES)
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
-                                                       .executes(                                                       context -> executeRECORD(
+                                                       .executes(                                                       context -> executeSTORE(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
                                                                       Stats.KILLED                                      /* - - - - - - - - - */                                     ,
@@ -438,7 +424,7 @@ public class StatisticsCommand {
                               .then(((RequiredArgumentBuilder)CommandManager.argument(STAT, RegistryEntryArgumentType.registryEntry(access, RegistryKeys.ENTITY_TYPE)))
                                                             .suggests(SuggestionProviders.SUMMONABLE_ENTITIES)
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
-                                                       .executes(                                                       context -> executeRECORD(
+                                                       .executes(                                                       context -> executeSTORE(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
                                                                       Stats.KILLED_BY                                   /* - - - - - - - - - */                                     ,
@@ -462,7 +448,7 @@ public class StatisticsCommand {
                               .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(STAT, RegistryEntryArgumentType.registryEntry(access, RegistryKeys.CUSTOM_STAT)))
                                                             .suggests( new CustomStatsSuggestionProvider() )
                                    .then((ArgumentBuilder<ServerCommandSource, ?>)((RequiredArgumentBuilder)CommandManager.argument(OBJECTIVE, ScoreboardObjectiveArgumentType.scoreboardObjective())
-                                                       .executes(                                                       context -> executeRECORD(
+                                                       .executes(                                                       context -> executeSTORE(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
                                                                       Stats.CUSTOM                                   /* - - - - - - - - - */                                        ,
@@ -480,7 +466,7 @@ public class StatisticsCommand {
           ;
      }
 
-     private static <T> int  executeRECORD      (ServerCommandSource source, Collection<ServerPlayerEntity> targets, StatType<T> statType, T statSpecified, ScoreboardObjective objective ) throws CommandSyntaxException {
+     private static <T> int executeSTORE(ServerCommandSource source, Collection<ServerPlayerEntity> targets, StatType<T> statType, T statSpecified, ScoreboardObjective objective ) throws CommandSyntaxException {
           int toReturn=0;
           for (ServerPlayerEntity player : targets) {
                ServerStatHandler handler = player.getStatHandler();
@@ -489,8 +475,8 @@ public class StatisticsCommand {
                     int statValue = handler.getStat(statType, statSpecified);
                     scoreboard.getOrCreateScore(player, objective).setScore(statValue);
                handler.save();
-
-               RecordFeedback.provideFeedback(source, player, statType, statSpecified, statValue, objective);
+               
+               source.sendFeedback(() -> StoreFeedback.provideFeedback(player, statType, statSpecified, statValue, objective),false);
 
                toReturn +=statValue;
           }
@@ -1007,7 +993,7 @@ public class StatisticsCommand {
                player.increaseStat( statType.getOrCreateStat(statSpecified), amount);
                handler.save();
 
-               AddFeedback.provideFeedback(source, player, statType,statSpecified, statValue, amount);
+               source.sendFeedback(() -> AddFeedback.provideFeedback(player, statType, statSpecified, statValue, amount),false);
                toReturn+=amount;
 
           }
@@ -1025,8 +1011,9 @@ public class StatisticsCommand {
                     int statValue = handler.getStat(statType, statSpecified);
                     player.increaseStat( statType.getOrCreateStat(statSpecified), amount);
                handler.save();
-
-               AddFeedback.provideFeedback(source, player, statType,statSpecified, statValue, amount, obj);
+               
+               
+               source.sendFeedback(() -> AddFeedback.provideFeedback(player, statType, statSpecified, statValue, amount, obj),false);
                toReturn+=amount;
 
           }
@@ -1544,9 +1531,9 @@ public class StatisticsCommand {
                          handler.save();
                     player.increaseStat(statType.getOrCreateStat(statSpecified), amount);
                handler.save();
-
-               SetFeedback.provideFeedback(source, player, statType,statSpecified, statValue, amount);
-
+               
+               source.sendFeedback(() -> SetFeedback.provideFeedback(player, statType, statSpecified, statValue, amount),false);
+               
                toReturn+=amount;
           }
           return toReturn;
@@ -1564,8 +1551,8 @@ public class StatisticsCommand {
                          handler.save();
                     player.increaseStat(statType.getOrCreateStat(statSpecified), amount);
                handler.save();
-
-               SetFeedback.provideFeedback(source, player, statType,statSpecified, statValue, amount, obj);
+               
+               source.sendFeedback(() -> SetFeedback.provideFeedback(player, statType, statSpecified, statValue, amount, obj), false);
 
                toReturn+=amount;
           }
@@ -2085,7 +2072,7 @@ public class StatisticsCommand {
                     player.increaseStat(statType.getOrCreateStat(statSpecified), statValueNext);
                handler.save();
 
-               ReduceFeedback.provideFeedback(source, player, statType,statSpecified, statValue, amount, statValueNext);
+               source.sendFeedback(() -> ReduceFeedback.provideFeedback(player, statType, statSpecified, statValue, amount), false);
 
                toReturn+=amount;
           }
@@ -2105,9 +2092,9 @@ public class StatisticsCommand {
                          handler.save();
                     player.increaseStat(statType.getOrCreateStat(statSpecified), statValueNext);
                handler.save();
-
-               ReduceFeedback.provideFeedback(source, player, statType,statSpecified, statValue, amount, statValueNext, obj);
-
+               
+               source.sendFeedback(() -> ReduceFeedback.provideFeedback(player, statType, statSpecified, statValue, amount, obj), false);
+               
                toReturn+=amount;
           }
           return toReturn;
