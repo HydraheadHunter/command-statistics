@@ -1,7 +1,7 @@
-package hydraheadhunter.commandstatistics.command.feedback.lang;
+package hydraheadhunter.cmdstats.command.feedback.lang;
 
-import hydraheadhunter.commandstatistics.CommandStatistics;
-import hydraheadhunter.commandstatistics.util.ModTags;
+import hydraheadhunter.cmdstats.CommandStatistics;
+import hydraheadhunter.cmdstats.util.ModTags;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
@@ -11,38 +11,28 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
+import static hydraheadhunter.cmdstats.CommandStatistics.*;
+
+//TODO Move gender functionality from Tags to en-us.json for flexible client-side translatablity
+
 public class ConjugateStat {
      private static final int[] PRIMES = { 2, 3, 5, 7, 11, 13, 17, 19, 23 };
      private static final int BLOCK_STRING_CUT = 15;
      private static final int ITEM_STRING_CUT = 14;
      private static final int ENTITY_STRING_CUT = 16;
      
-     private static final int BLOCK_ITEM=2;
-     private static final int BLOCK = 3;
-     private static final int ITEM = 5;
-     private static final int ENTITY = 7;
-     
-     private static final int FLAT = 0;
-     private static final int INDEFINITE = 1;
-     private static final int DEFINITE = 2;
-     
      private static final String AIR_KEY             = "block.minecraft.air";
-     private static final String GRAMMAR_KEY_ROOT    = CommandStatistics.MOD_ID + ".grammar";
-     private static final String AFFIX_KEY_ROOT      = GRAMMAR_KEY_ROOT + ".affix";
-     private static final String DEFINITE_KEY_ROOT   = GRAMMAR_KEY_ROOT + ".definite";
-     private static final String INDEFINITE_KEY_ROOT = GRAMMAR_KEY_ROOT + ".indefinite";
-     private static final String GENDER_ROOT = ".gender_";
-     
-     private static final String IRREGULAR = ".irregular";
-     private static final String REGULAR = "";
+     private static final String AFFIX_KEY_ROOT      = join(GRAMMAR_KEY, AFFIX);
+     private static final String DEFINITE_KEY_ROOT   = join(GRAMMAR_KEY, DEFINITE);
+     private static final String INDEFINITE_KEY_ROOT = join(GRAMMAR_KEY, INDEFINITE);
      
      
      public  static <T> MutableText conjugateStat( T statSpecific, int statValue, String plurality ) {
      //Set all logic variable
-          int objectType = castStat_2(statSpecific);
+          String objectType = castStat_2(statSpecific);
           String workingTranslationKey = chooseDefaultKey_2(objectType, statSpecific);
           String irregularity = isIrregular(objectType, statSpecific, statValue);
-          int article = chooseArticle_2(objectType, statSpecific);
+          String article = chooseArticle_2(objectType, statSpecific);
           int[] genders = chooseGender(objectType, statSpecific);
           
      //get root word
@@ -58,51 +48,44 @@ public class ConjugateStat {
                affixedWord = rootWord;
                for (int ii = 0;ii <= 15;ii += 1) {
                     if (isGender(genders, ii))
-                         affixedWord = Text.stringifiedTranslatable(AFFIX_KEY_ROOT + plurality + GENDER_ROOT + String.valueOf(ii), affixedWord);
+                         affixedWord = Text.stringifiedTranslatable( join(AFFIX_KEY_ROOT  , plurality , GENDER_ROOT+String.valueOf(ii)), affixedWord);
                }
           }
           affixedWord.formatted(Formatting.GOLD);
 
           //get articles
           MutableText articledWord = affixedWord;
-          if (isGender(genders, 0) && article == DEFINITE)
-               articledWord = Text.stringifiedTranslatable(DEFINITE_KEY_ROOT + plurality + GENDER_ROOT + "0", affixedWord);
-          if (isGender(genders, 0) && article == INDEFINITE)
-               articledWord = Text.stringifiedTranslatable(INDEFINITE_KEY_ROOT + plurality + GENDER_ROOT + "0", affixedWord);
-          for (int ii = 1;ii <= 15;ii += 1) {
-               if (isGender(genders, ii) && article == DEFINITE)
-                    articledWord = Text.stringifiedTranslatable(DEFINITE_KEY_ROOT + plurality + GENDER_ROOT + String.valueOf(ii), articledWord);
-               if (isGender(genders, ii) && article == INDEFINITE)
-                    articledWord = Text.stringifiedTranslatable(INDEFINITE_KEY_ROOT + plurality + GENDER_ROOT + String.valueOf(ii), articledWord);
+         for (int ii = 0;ii <= 15;ii += 1) {
+               if (isGender(genders, ii) && article.equals(DEFINITE))
+                    articledWord = Text.stringifiedTranslatable( join(DEFINITE_KEY_ROOT   , plurality , GENDER_ROOT+String.valueOf(ii)), articledWord);
+               if (isGender(genders, ii) && article.equals(INDEFINITE))
+                    articledWord = Text.stringifiedTranslatable( join(INDEFINITE_KEY_ROOT , plurality , GENDER_ROOT+String.valueOf(ii)), articledWord);
           }
           
           return articledWord;
           
      }
-     private static <T> int castStat_2(                    T object             ) {
-          try {
-               Block block = (Block) object;
-               return BLOCK;
-          }
+     private static <T> String castStat_2         (                       T object             ) {
+          try {               Block block = (Block) object;               return BLOCK;          }
           catch (ClassCastException e1) {
-               try {
-                    Item item = (Item) object;
-                    Block  block = Block.getBlockFromItem(item);
-                    return block.getTranslationKey().equals(AIR_KEY) ? ITEM:BLOCK_ITEM;
-               }
-               catch (ClassCastException e2) {
+          try {
+               Item item = (Item) object;
+               Block  block = Block.getBlockFromItem(item);
+               return block.getTranslationKey().equals(AIR_KEY) ? ITEM:BLOCK_ITEM;
+          }
+          catch (ClassCastException e2) {
                     try {
                          ( (EntityType<?>) object ).isIn(ModTags.Entity_Types.IS_DEFINITE);
                          return ENTITY;
                     }
                     catch (ClassCastException e3) {
-                         return -1;
+                         return NO_SUCH_STAT_TYPE;
                     }
                }
           }
      }
      
-     private static <T> String chooseDefaultKey_2 ( int   objectType,  T object             ) {
+     private static <T> String chooseDefaultKey_2 ( String   objectType,  T object             ) {
           Block objectBlock = null;
           switch (objectType) {
                case BLOCK_ITEM: objectBlock = Block.getBlockFromItem( (Item) object);
@@ -113,13 +96,13 @@ public class ConjugateStat {
           }
      }
      
-     private static <T> int    chooseArticle_2    ( int   objectType,  T object             ) {
+     private static <T> String chooseArticle_2    ( String   objectType,  T object             ) {
           if (isIndefinite_2(objectType, object)) return INDEFINITE;
-          if (isDefinite(objectType, object)) return DEFINITE;
-          return 0;
+          if (isDefinite(objectType, object))     return DEFINITE;
+                                                  return FLAT;
      }
      
-     private static <T> boolean isIndefinite_2    ( int   objectType,  T object             ) {
+     private static <T> boolean isIndefinite_2    ( String   objectType,  T object             ) {
           switch(objectType){
                case BLOCK:
                     return((Block)object ).getDefaultState().isIn( ModTags.Blocks.IS_INDEFINITE );
@@ -135,7 +118,7 @@ public class ConjugateStat {
           }
      }
      
-     private static <T> boolean isDefinite        ( int   objectType,  T object             ) {
+     private static <T> boolean isDefinite        ( String   objectType,  T object             ) {
                switch (objectType) {
                     case BLOCK:
                          return ( (Block) object ).getDefaultState().isIn(ModTags.Blocks.IS_DEFINITE);
@@ -149,12 +132,12 @@ public class ConjugateStat {
                          return false;
                }
           }
-          private static     boolean  isFlat      ( int   article                           ) {
-          return article == FLAT;
+     private static     boolean  isFlat           ( String   article                           ) {
+          return article.equals(FLAT);
           
      }
      
-     private static <T> String   isIrregular      ( int    objectType,  T object, int count ) {
+     private static <T> String   isIrregular      ( String   objectType,  T object, int count  ) {
           switch (objectType) {
                case BLOCK:
                     BlockState blockState = ( (Block) object ).getDefaultState();
@@ -188,12 +171,12 @@ public class ConjugateStat {
           
           
      }
-     private static     boolean  isIrregular      ( String irregularity                     ) {
+     private static     boolean  isIrregular      ( String   irregularity                      ) {
           return irregularity.equals(IRREGULAR);
           
      }
      
-     private static <T> int[]    chooseGender     ( int    objectType,  T object            ) {
+     private static <T> int[]    chooseGender     ( String   objectType,  T object             ) {
           int[] toReturn = { 1, 1 };
           Block object_2 = null;
           switch (objectType) {
@@ -260,11 +243,11 @@ public class ConjugateStat {
           }
           return toReturn;
      }
-     private static     boolean  isGender         ( int[]  genders,     int    key          ) {
+     private static     boolean  isGender         ( int[]   genders,     int    key            ) {
           return genders[key < 9 ? 0 : 1] % PRIMES[key % 9] == 0;
      }
      
-     private static     String   cut              ( int    objectType,  String key          ) {
+     private static     String   cut              ( String   objectType,  String key           ) {
           switch (objectType) {
                case BLOCK: case BLOCK_ITEM:
                     return key.substring(BLOCK_STRING_CUT);
@@ -276,8 +259,8 @@ public class ConjugateStat {
                     return key;
           }
      }
-     private static     String   stitch           ( String key,         String plurality    ) {
-          return CommandStatistics.MOD_ID + key + plurality + IRREGULAR;
+     private static     String   stitch           ( String key,         String plurality       ) {
+          return join (MOD_ID , key , plurality , IRREGULAR );
           
      }
 }

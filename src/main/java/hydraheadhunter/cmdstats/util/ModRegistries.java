@@ -1,6 +1,6 @@
-package hydraheadhunter.commandstatistics.util;
+package hydraheadhunter.cmdstats.util;
 
-import hydraheadhunter.commandstatistics.command.StatisticsCommand;
+import hydraheadhunter.cmdstats.command.StatisticsCommand;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 public class ModRegistries {

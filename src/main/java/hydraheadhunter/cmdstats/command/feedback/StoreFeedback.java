@@ -1,6 +1,7 @@
-package hydraheadhunter.commandstatistics.command.feedback;
+package hydraheadhunter.cmdstats.command.feedback;
 
 
+import hydraheadhunter.cmdstats.CommandStatistics;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -9,8 +10,10 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
+import static hydraheadhunter.cmdstats.CommandStatistics.join;
+
 public class StoreFeedback {
-     private static final String BASE_KEY = "commandstatistics.feedback.store";
+     private static final String BASE_KEY    = join( CommandStatistics.FEEDBACK_KEY , CommandStatistics.STORE     );
 
      public  static <T> MutableText provideFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpecific, int statValue, ScoreboardObjective objective, ServerCommandSource... source ){
           

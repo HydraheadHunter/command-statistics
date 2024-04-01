@@ -1,4 +1,4 @@
-package hydraheadhunter.commandstatistics.command;
+package hydraheadhunter.cmdstats.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -6,9 +6,10 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import hydraheadhunter.commandstatistics.command.feedback.*;
-import hydraheadhunter.commandstatistics.command.suggestionprovider.BreakableItemSuggestionProvider;
-import hydraheadhunter.commandstatistics.command.suggestionprovider.CustomStatsSuggestionProvider;
+import hydraheadhunter.cmdstats.CommandStatistics;
+import hydraheadhunter.cmdstats.command.feedback.*;
+import hydraheadhunter.cmdstats.command.suggestionprovider.BreakableItemSuggestionProvider;
+import hydraheadhunter.cmdstats.command.suggestionprovider.CustomStatsSuggestionProvider;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.*;
 import net.minecraft.command.suggestion.SuggestionProviders;
@@ -24,32 +25,24 @@ import net.minecraft.stat.Stats;
 
 import java.util.Collection;
 
-//TODO move QUERY's OP level to a config file
+
+import static hydraheadhunter.cmdstats.CommandStatistics.*;
+
 //TODO implement block, item, entityType tags to allow bundling item stats in query and record 'all music disks,'
 // eg All music disks, any diamond armors
 public class StatisticsCommand {
-     private static final String STATISTICS            = "statistics" ;     private static final String TARGETS               = "targets"    ;
 
-     private static final String QUERY                 = "query"      ;     private static final String STORE                 = "store"      ;
-     private static final String ADD                   = "add"        ;     private static final String SET                   = "set"        ;
-     private static final String REDUCE                = "reduce"     ;
 
-     private static final String MINED                 = "mined"      ;     private static final String CRAFTED               = "crafted"    ;
-     private static final String USED                  = "used"       ;     private static final String BROKEN                = "broken"     ;
-     private static final String PICKED_UP             = "picked_up"  ;     private static final String DROPPED               = "dropped"    ;
-     private static final String KILLED                = "killed"     ;     private static final String KILLED_BY             = "killed_by"  ;
-     private static final String CUSTOM                = "custom"     ;
-
-     private static final String STAT                  = "stat"       ;     private static final String AMOUNT                = "amount"     ;
-     private static final String OBJECTIVE             = "objective"  ;
-
-     //Execution OP 1 (Cannot change player statistics )
+//TODO: Put QUERY EXECUTION OP in a config file
+//TODO: Implement 'Tag Stats' for QUERY and STORE; allowing for item batching ( broken any boots, mined root replacable) which returns the sum of all blocks/items/entities/ids in the tag)
+//TODO: Implement 'Units' Argument for QUERY | STORE (Format the stat's output in terms of units) and ADD SET REDUCE ( convert the AMOUNT given from specified unit (stack, chests, double chests, chest of shulkers, into that stat's default (blocks, items, times, ticks, cm, points, slice, times ) then act on it ).
+//Execution OP 1 (Cannot change player statistics )
 // /statistics query @p <statType<T (Block | Item | EntityType<?> | Identifier )>> <stat<T>>
      public static     void registerQUERY       (CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
           String executionMode = QUERY;
           int executionOP = 1;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(MINED)
@@ -69,7 +62,7 @@ public class StatisticsCommand {
           )
           ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(CRAFTED)
@@ -89,7 +82,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(USED)
@@ -109,7 +102,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(BROKEN)
@@ -130,7 +123,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(PICKED_UP)
@@ -150,7 +143,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(DROPPED)
@@ -170,7 +163,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED)
@@ -191,7 +184,7 @@ public class StatisticsCommand {
           )
           ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED_BY)
@@ -212,7 +205,7 @@ public class StatisticsCommand {
           )
           ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(CUSTOM)
@@ -252,9 +245,9 @@ public class StatisticsCommand {
 // /statistics record @p <statType<T (Block | Item | EntityType<?> | Identifier )>> <stat<T>> <objective>
      public static     void registerSTORE(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
           String executionMode = STORE;
-          int executionOP = 1;
+          int executionOP = STORE_OP;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(MINED)
@@ -277,7 +270,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(CRAFTED)
@@ -300,7 +293,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(USED)
@@ -323,7 +316,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(BROKEN)
@@ -347,7 +340,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(PICKED_UP)
@@ -370,7 +363,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(DROPPED)
@@ -393,7 +386,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED)
@@ -417,7 +410,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED_BY)
@@ -441,7 +434,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(CUSTOM)
@@ -485,10 +478,10 @@ public class StatisticsCommand {
 
 // /statistics add @p <statType<T (Block | Item | EntityType<?> | Identifier )>> <stat<T>> <amount (int) [default:1]>
      public static      void registerADD        (CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
-        String executionMode = ADD;
-        int executionOP = 2;
+        String executionMode = ADD   ;
+        int    executionOP   = ADD_OP;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(MINED)
@@ -518,7 +511,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(CRAFTED)
@@ -548,7 +541,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(USED)
@@ -578,7 +571,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(BROKEN)
@@ -609,7 +602,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(PICKED_UP)
@@ -639,7 +632,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(DROPPED)
@@ -669,7 +662,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED)
@@ -700,7 +693,7 @@ public class StatisticsCommand {
           )
           ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED_BY)
@@ -731,7 +724,7 @@ public class StatisticsCommand {
           )
           ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(CUSTOM)
@@ -764,10 +757,10 @@ public class StatisticsCommand {
 
      }
      public static      void registerADDobj     (CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
-        String executionMode = ADD;
-        int executionOP = 2;
+        String executionMode = ADD   ;
+        int    executionOP   = ADD_OP;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(MINED)
@@ -790,7 +783,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(CRAFTED)
@@ -813,7 +806,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(USED)
@@ -836,7 +829,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(BROKEN)
@@ -860,7 +853,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(PICKED_UP)
@@ -883,7 +876,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(DROPPED)
@@ -906,7 +899,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(KILLED)
@@ -930,7 +923,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(KILLED_BY)
@@ -954,7 +947,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(CUSTOM)
@@ -1022,10 +1015,10 @@ public class StatisticsCommand {
 
 // /statistics set @p <statType<T (Block | Item | EntityType<?> | Identifier )>> <stat<T>> <amount (int) [default:0]>
      public static      void registerSET        (CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
-        String executionMode = SET;
-        int executionOP = 3;
+        String executionMode = SET   ;
+        int    executionOP   = SET_OP;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(MINED)
@@ -1038,7 +1031,7 @@ public class StatisticsCommand {
                                                        )
                                                        )
                                   )
-                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(0))
+                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(MINIMUM_STAT_VALUE))
                                                        .executes(                                                       context -> executeSET(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1055,7 +1048,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(CRAFTED)
@@ -1068,7 +1061,7 @@ public class StatisticsCommand {
                                                        )
                                                        )
                                   )
-                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(0))
+                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(MINIMUM_STAT_VALUE))
                                                        .executes(                                                       context -> executeSET(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1085,7 +1078,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(USED)
@@ -1098,7 +1091,7 @@ public class StatisticsCommand {
                                                        )
                                                        )
                                   )
-                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(0))
+                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(MINIMUM_STAT_VALUE))
                                                        .executes(                                                       context -> executeSET(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1115,7 +1108,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(BROKEN)
@@ -1129,7 +1122,7 @@ public class StatisticsCommand {
                                                        )
                                                        )
                                   )
-                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(0))
+                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(MINIMUM_STAT_VALUE))
                                                        .executes(                                                       context -> executeSET(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1146,7 +1139,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(PICKED_UP)
@@ -1159,7 +1152,7 @@ public class StatisticsCommand {
                                                        )
                                                        )
                                   )
-                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(0))
+                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(MINIMUM_STAT_VALUE))
                                                        .executes(                                                       context -> executeSET(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1176,7 +1169,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(DROPPED)
@@ -1189,7 +1182,7 @@ public class StatisticsCommand {
                                                        )
                                                        )
                                   )
-                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(0))
+                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(MINIMUM_STAT_VALUE))
                                                        .executes(                                                       context -> executeSET(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1206,7 +1199,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED)
@@ -1220,7 +1213,7 @@ public class StatisticsCommand {
                                                        )
                                                        )
                                    )
-                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(0))
+                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(MINIMUM_STAT_VALUE))
                                                        .executes(                                                       context -> executeSET(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1237,7 +1230,7 @@ public class StatisticsCommand {
           )
           ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED_BY)
@@ -1251,7 +1244,7 @@ public class StatisticsCommand {
                                                        )
                                                        )
                                    )
-                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(0))
+                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(MINIMUM_STAT_VALUE))
                                                        .executes(                                                       context -> executeSET(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1268,7 +1261,7 @@ public class StatisticsCommand {
           )
           ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(CUSTOM)
@@ -1282,7 +1275,7 @@ public class StatisticsCommand {
                                                        )
                                                        )
                                   )
-                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(0))
+                                  .then(CommandManager.argument(AMOUNT, IntegerArgumentType.integer(MINIMUM_STAT_VALUE))
                                                        .executes(                                                       context -> executeSET(
                                                                       (ServerCommandSource)                             context.getSource()                                         ,
                                                                       EntityArgumentType.getPlayers(                    context, TARGETS)                                           ,
@@ -1301,10 +1294,10 @@ public class StatisticsCommand {
 
     }
      public static      void registerSETobj     (CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
-          String executionMode = SET;
-          int executionOP = 3;
+          String executionMode = SET   ;
+          int    executionOP   = SET_OP;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(MINED)
@@ -1327,7 +1320,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(CRAFTED)
@@ -1350,7 +1343,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(USED)
@@ -1373,7 +1366,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(BROKEN)
@@ -1397,7 +1390,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(PICKED_UP)
@@ -1420,7 +1413,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(DROPPED)
@@ -1443,7 +1436,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED)
@@ -1467,7 +1460,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED_BY)
@@ -1491,7 +1484,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(CUSTOM)
@@ -1562,9 +1555,9 @@ public class StatisticsCommand {
 // /statistics set @p <statType<T (Block | Item | EntityType<?> | Identifier )>> <stat<T>> <amount (int) [default:1]
      public static      void registerREDUCE     (CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
         String executionMode = REDUCE;
-        int executionOP = 3;
+        int    executionOP   = REDUCE_OP;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(MINED)
@@ -1594,7 +1587,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(CRAFTED)
@@ -1624,7 +1617,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(USED)
@@ -1654,7 +1647,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(BROKEN)
@@ -1685,7 +1678,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(PICKED_UP)
@@ -1715,7 +1708,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(DROPPED)
@@ -1745,7 +1738,7 @@ public class StatisticsCommand {
          )
          ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED)
@@ -1776,7 +1769,7 @@ public class StatisticsCommand {
           )
           ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED_BY)
@@ -1807,7 +1800,7 @@ public class StatisticsCommand {
           )
           ;
 
-         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+         dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
               .then(CommandManager.literal(executionMode)
                    .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                         .then( CommandManager.literal(CUSTOM)
@@ -1841,9 +1834,9 @@ public class StatisticsCommand {
     }
      public static      void registerREDUCEobj  (CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
           String executionMode = REDUCE;
-          int executionOP = 3;
+          int    executionOP   = REDUCE_OP;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(MINED)
@@ -1866,7 +1859,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(CRAFTED)
@@ -1889,7 +1882,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(USED)
@@ -1912,7 +1905,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(BROKEN)
@@ -1936,7 +1929,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(PICKED_UP)
@@ -1959,7 +1952,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(DROPPED)
@@ -1982,7 +1975,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED)
@@ -2006,7 +1999,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(KILLED_BY)
@@ -2030,7 +2023,7 @@ public class StatisticsCommand {
           )
           ;
 
-          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(STATISTICS).requires(source -> source.hasPermissionLevel(executionOP)))
+          dispatcher.register( (LiteralArgumentBuilder)(  (LiteralArgumentBuilder) CommandManager.literal(ROOT_COMMAND).requires(source -> source.hasPermissionLevel(executionOP)))
                .then(CommandManager.literal(executionMode)
                     .then(CommandManager.argument(TARGETS, EntityArgumentType.players())
                          .then( CommandManager.literal(CUSTOM)
@@ -2066,7 +2059,7 @@ public class StatisticsCommand {
                ServerStatHandler handler = player.getStatHandler();
                handler.save();
                     int statValue     = handler.getStat(statType, statSpecified);
-                    int statValueNext = Math.max(0, statValue - amount);
+                    int statValueNext = Math.max(MINIMUM_STAT_VALUE, statValue - amount);
                     player.resetStat(statType.getOrCreateStat(statSpecified));
                          handler.save();
                     player.increaseStat(statType.getOrCreateStat(statSpecified), statValueNext);
@@ -2087,7 +2080,7 @@ public class StatisticsCommand {
 
                handler.save();
                     int statValue     = handler.getStat(statType, statSpecified);
-                    int statValueNext = Math.max(0, statValue - amount);
+                    int statValueNext = Math.max(MINIMUM_STAT_VALUE, statValue - amount);
                     player.resetStat(statType.getOrCreateStat(statSpecified));
                          handler.save();
                     player.increaseStat(statType.getOrCreateStat(statSpecified), statValueNext);

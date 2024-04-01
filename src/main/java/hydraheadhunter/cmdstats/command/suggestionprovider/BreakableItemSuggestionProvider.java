@@ -1,19 +1,17 @@
-package hydraheadhunter.commandstatistics.command.suggestionprovider;
+package hydraheadhunter.cmdstats.command.suggestionprovider;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import hydraheadhunter.commandstatistics.CommandStatistics;
+import hydraheadhunter.cmdstats.CommandStatistics;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.suggestion.SuggestionProviders;
-import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
 
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public class BreakableItemSuggestionProvider implements SuggestionProvider<ServerCommandSource> {

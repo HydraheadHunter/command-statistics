@@ -1,4 +1,4 @@
-package hydraheadhunter.commandstatistics.mixin;
+package hydraheadhunter.cmdstats.mixin;
 
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;

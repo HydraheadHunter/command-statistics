@@ -1,4 +1,4 @@
-package hydraheadhunter.commandstatistics;
+package hydraheadhunter.cmdstats;
 
 import net.fabricmc.api.ClientModInitializer;
 

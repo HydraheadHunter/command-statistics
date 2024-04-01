@@ -1,28 +1,28 @@
 {
 	"schemaVersion": 1,
-	"id": "command-statistics",
+	"id": "cmdstats",
 	"version": "${version}",
 	"name": "Command Statistics",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Adds /statistics [query | store | add | set | reduce ]",
 	"authors": [
-		"Me!"
+		"Hydrahead Hunter, with help from 7410"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://zwoelffarben.tumblr.com/",
+		"sources" : "https://github.com/HydraheadHunter/command-statistics"
 	},
-	"license": "CC0-1.0",
+	"license": "CC BY-NC-SA 4.0",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"hydraheadhunter.commandstatistics.CommandStatistics"
+			"hydraheadhunter.cmdstats.CommandStatistics"
 		],
 		"fabric-datagen": [
-			"hydraheadhunter.commandstatistics.CommandStatisticsDataGenerator"
+			"hydraheadhunter.cmdstats.CommandStatisticsDataGenerator"
 		]
 	},
 	"mixins": [
-		"command-statistics.mixins.json"
+		"cmd_stats.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.15.7",
