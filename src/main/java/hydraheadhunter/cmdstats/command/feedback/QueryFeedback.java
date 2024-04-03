@@ -51,13 +51,6 @@ public class QueryFeedback {
           return stringifiedTranslatable( formatKey, playerName, statTypeText, statSpecificText, statValueText );
      }
      
-     private static <T> String castStat                (                                         T statSpecific                                                   ){
-          try { ((Block        ) statSpecific ).getName(); return BLOCK ; } catch (ClassCastException e1) { String block = "not Block"  ;}
-          try { ((Item         ) statSpecific ).getName(); return ITEM  ; } catch (ClassCastException e2) { String Item  = "not Item"   ;}
-          try { ((EntityType<?>) statSpecific ).getName(); return ENTITY; } catch (ClassCastException e3) { String Entit = "not Entity" ;}
-          try { ((Identifier   ) statSpecific ).getPath(); return ID    ; } catch (ClassCastException e3) { String Id    = "not ID"     ;}
-          return NO_SUCH_STAT_TYPE;
-          }
      private static     String choosePlurality         ( String statTypeCode,                                                        int statValue, boolean isFormat ){
           switch(statValue){
                case 0: return  (isFormat) ? NIL : (Text.translatable( join(PLURALITY_KEY, NIL))).getString();

@@ -1,7 +1,11 @@
 package hydraheadhunter.cmdstats;
 
+import hydraheadhunter.cmdstats.util.ModTags;
 import net.fabricmc.api.ModInitializer;
 
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.Identifier;
@@ -33,10 +37,15 @@ public class CommandStatistics implements ModInitializer {
 	public static final String CAKE        	= "cake"     	;
 //Custom Stat Units
 	public static final String UNIT        	= "unit"		;	public static final String LESS_THAN    = "lt"	;	public static final String SPENT	   = "spent"	;
-	
+	//Blocks and Items
+	public static final String STACK   	= "stack"		;	public static final String QT_STACK   	= "stack.qt"		;	public static final String UNSTACK		= "stack.un";
+	public static final String CHEST		= "chest"		;	public static final String SHULKER	   	= "shulker"		;	public static final String DB_CHEST	= "chest.2" ;
+	public static final String CHEST_SK	= "chest.shulker";	public static final String DB_CHEST_SK	= "chest.2.shulker"	;
+	public static final String HOPPER		= "hopper"	;	public static final String DROPPER		= "dropper"		;
 	//Time
 	public static final String TICK         = "tick"      	;	public static final String SECOND     = "second"  ;	public static final String MINUTE       = "minute"    	;	public static final String HOUR       = "hour"    ;
 	public static final String DAY          = "day"       	;	public static final String WEEK       = "week"    ;	public static final String MONTH        = "month"     	;	public static final String YEAR       = "year"    ;
+	public static final String MC_DAY       = "day.mc"   	;
 	//Distance
 	public static final String CENTIMETER   = "cm"        	;	public static final String METER      = "m"       ;	public static final String KILOMETER    = "km"        	;	public static final String INCH       = "in"      ;
 	public static final String FOOT         = "ft"        	;	public static final String YARD       = "yd"      ;	public static final String MILE         = "mi"        	;
@@ -47,14 +56,18 @@ public class CommandStatistics implements ModInitializer {
 	public static final String SLICE        = "slice"     	;   //public static final String CAKE       = "cake"    ;
 	
 //Unit Conversion Factors
+	//Blocks and Items
+	public static final int ITEMS_per_STACK    = 64     	;	public static final int ITEMS_per_QT_STACK  = 16	;	public static final int ITEMS_per_UNSTACK   = 1     ;
+	public static final int STACKS_per_CHEST   = 27     	;	public static final int STACKS_per_SHULKER  = 27	;	public static final int CHESTS_per_DB_CHEST = 2     ;
+	public static final int STACKS_per_HOPPER  = 5     	;	public static final int STACKS_per_DROPPER  =  9	;
 	//Time
      public static final int TICKS_per_SECOND   = 20     	;	public static final int SECONDS_per_MINUTE = 60   ;	public static final int MINUTES_per_MC_DAY = 20     ;	public static final int MINUTES_per_HOUR   = 60     ;
-	public static final int HOURS_per_DAY      = 24     	;	public static final int DAYS_per_WEEK      =  7   ;	public static final int WEEKS_per_MONTH    =  4     ;	public static final int MONTH_per_YEAR     = 12     ;
+	public static final int HOURS_per_DAY      = 24     	;	public static final int DAYS_per_WEEK      =  7   ;	public static final int WEEKS_per_MONTH    =  4     ;	public static final int MONTHS_per_YEAR     = 12     ;
 	//Distance
-	public static final int CM_per_METER	   = 100 		;	public static final int METER_per_KM 	= 1000	;	public static final int INCHES_per_METER   = 39     ;	public static final int INCH_per_FOOT      = 12     ;
-	public static final int FEET_per_MILE      = 5280      ;
+	public static final int CM_per_METER	   = 100 		;	public static final int METERS_per_KM 	= 1000	;	public static final int INCHES_per_METER   = 39     ;	public static final int INCHES_per_FOOT      = 12     ;
+	public static final int FEET_per_YARD      = 3         ;	public static final int FEET_per_MILE   = 5280    ;
 	//Damage and cakes
-	public static final int POINTS_per_HEART   = 2     	;	public static final int SLICE_per_CAKE   = 7       ;
+	public static final int POINTS_per_HEART   = 2     	;	public static final int SLICES_per_CAKE   = 7     ;
 	
 //Translation Keys
 	public static final String FEEDBACK_KEY = join(MOD_ID, "feedback" 	 )	;	public static final String GRAMMAR_KEY  = join(MOD_ID, "grammar"   )	;	public static final String SYSTEM_KEY	= join(MOD_ID, "system"		);
@@ -86,7 +99,6 @@ public class CommandStatistics implements ModInitializer {
 	public static final String ENTITY      = "entity"    	;
 	public static final String BLOCK_ITEM  = "block_item"	;
 	public static final String ID          = "id"        	;
-	
 	
 	public static final String ERROR 	          = "error"            	;
 	public static final String NO_SUCH_STAT_TYPE = "no_such_stat_type"	;
@@ -123,6 +135,26 @@ public class CommandStatistics implements ModInitializer {
 	public static boolean customStatIsIn( Identifier stat, TagKey<Identifier> tagKey) {
 		return Stats.CUSTOM.getRegistry().getEntry(stat).isIn( tagKey );
 	}
+ 
+
+	@SuppressWarnings("DataFlowIssue")
+	public static <T> String castStat (T statSpecific  ){
+		try { ((Block) statSpecific ).getName()			; return BLOCK ; } catch (ClassCastException e1) { String block 	= "not Block"  ;}
+		try { ((Item) statSpecific ).getName()			; return ITEM  ; } catch (ClassCastException e2) { String Item  	= "not Item"   ;}
+		try { ((EntityType<?>) statSpecific ).getName()	; return ENTITY; } catch (ClassCastException e3) { String Entity	= "not Entity"	;}
+		try { ( (Identifier) statSpecific ).getPath()	; return ID	; } catch (ClassCastException e3) { String Id 	= "not ID"	;}
+		return NO_SUCH_STAT_TYPE;
+	}
 	
+	public static String    chooseCustomStatType( Identifier statSpecific ) {
+		return 	customStatIsIn( statSpecific, ModTags.Identifiers.IS_TIME)      ? TIME        :
+				customStatIsIn( statSpecific, ModTags.Identifiers.IS_REAL_TIME) ? REAL_TIME   :
+				customStatIsIn( statSpecific, ModTags.Identifiers.IS_DISTANCE)  ? DISTANCE    :
+				customStatIsIn( statSpecific, ModTags.Identifiers.IS_DAMAGE)    ? DAMAGE      :
+				customStatIsIn( statSpecific, ModTags.Identifiers.IS_CAKE)      ? CAKE        :
+																	 CUSTOM     ;
+		
+
+	}
 	
 }
