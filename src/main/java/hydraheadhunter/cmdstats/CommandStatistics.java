@@ -15,30 +15,33 @@ import org.slf4j.LoggerFactory;
 import hydraheadhunter.cmdstats.util.ModRegistries;
 
 public class CommandStatistics implements ModInitializer {
-	public static final String MOD_ID 		="cmdstats"		;
+	public static final String MOD_ID 		= "cmdstats"		;
 	public static final String MINECRAFT	= "minecraft"		;	public static final String MC = "mc";
 	
 	//Defining /statistics
-	public static final String ROOT_COMMAND	= "statistics"	;	public static final String TARGETS     = "targets" ;	public static final String STAT        = "stat"      	;	public static final String AMOUNT      = "amount"    ;
-	public static final String OBJECTIVE   	= "objective" 	;
+	public static final String ROOT_COMMAND	= "statistics"	;	public static final String TARGETS     = "targets"   ;	public static final String STAT        = "stat"      	;
+	public static final String AMOUNT       = "amount"     ;	public static final String OBJECTIVE   = "objective" ;
 	
-	public static final String QUERY    	= "query"     	;	public static final String ADD         = "add"     ;	public static final String STORE       = "store"     	;	public static final String SET         = "set"       ;
-	public static final String REDUCE      	= "reduce"    	;	public static final String INTEGER     = "integer" ;	public static final String SCORE       = "score"     	;
+	public static final String QUERY    	= "query"     	;	public static final String ADD         = "add"     ;	public static final String STORE       = "store"     	;
+	public static final String SET          = "set"        ;	public static final String REDUCE      = "reduce"  ;	public static final String PROJECT	    = "project"	;
+	public static final String INTEGER      = "integer" 	;	public static final String SCORE       = "score"   ;
 	
-	public static final String MINED       	= "mined"     	;	public static final String CRAFTED     = "crafted" ;	public static final String USED        = "used"      	;	public static final String BROKEN      = "broken"    ;
-	public static final String PICKED_UP   	= "picked_up" 	;	public static final String DROPPED     = "dropped" ;	public static final String KILLED      = "killed"    	;	public static final String KILLED_BY   = "killed_by" ;
+	public static final String STAT_TYPE    = "stat_type"  ;
+	public static final String MINED       	= "mined"     	;	public static final String CRAFTED     = "crafted"   ;	public static final String USED        = "used"      	;
+	public static final String BROKEN       = "broken"     ;	public static final String PICKED_UP   = "picked_up" ;	public static final String DROPPED     = "dropped" ;
+	public static final String KILLED       = "killed"    	;	public static final String KILLED_BY   = "killed_by" ;
 	public static final String CUSTOM      	= "custom"    	;
 	
-	public static final int    STORE_OP    = 1           	;	public static final int    ADD_OP      = 2         ;	public static final int    SET_OP      = 3           	;	public static final int    REDUCE_OP   = 3           ;
-	public static final int    MINIMUM_STAT_VALUE = 0    	;
+	public static final int    STORE_OP    = 1           	;	public static final int    ADD_OP      = 2         ;	public static final int    SET_OP      = 3;
+	public static final int    REDUCE_OP   = 3             ;	public static final int	  PROJECT_OP  = 1		 ;   public static final int    MINIMUM_STAT_VALUE = 0  ;
 	
 //Custom Stat Types
-	public static final String TIME        	= "time"     	;	public static final String REAL_TIME   = "time.irl";	public static final String DISTANCE    = "distance" 	;	public static final String DAMAGE      = "damage"   ;
-	public static final String CAKE        	= "cake"     	;
+	public static final String TIME        	= "time"     	;	public static final String REAL_TIME   = "time.irl";	public static final String DISTANCE    = "distance" 	;
+	public static final String DAMAGE       = "damage"     ;	public static final String CAKE        	= "cake"   ;
 //Custom Stat Units
 	public static final String UNIT        	= "unit"		;	public static final String LESS_THAN    = "lt"	;	public static final String SPENT	   = "spent"	;
 	//Blocks and Items
-	public static final String STACK   	= "stack"		;	public static final String QT_STACK   	= "stack.qt"		;	public static final String UNSTACK		= "stack.un";
+	public static final String STACK   	= "stack"		;
 	public static final String CHEST		= "chest"		;	public static final String SHULKER	   	= "shulker"		;	public static final String DB_CHEST	= "chest.2" ;
 	public static final String CHEST_SK	= "chest.shulker";	public static final String DB_CHEST_SK	= "chest.2.shulker"	;
 	public static final String HOPPER		= "hopper"	;	public static final String DROPPER		= "dropper"		;
@@ -57,7 +60,6 @@ public class CommandStatistics implements ModInitializer {
 	
 //Unit Conversion Factors
 	//Blocks and Items
-	public static final int ITEMS_per_STACK    = 64     	;	public static final int ITEMS_per_QT_STACK  = 16	;	public static final int ITEMS_per_UNSTACK   = 1     ;
 	public static final int STACKS_per_CHEST   = 27     	;	public static final int STACKS_per_SHULKER  = 27	;	public static final int CHESTS_per_DB_CHEST = 2     ;
 	public static final int STACKS_per_HOPPER  = 5     	;	public static final int STACKS_per_DROPPER  =  9	;
 	//Time
@@ -100,9 +102,11 @@ public class CommandStatistics implements ModInitializer {
 	public static final String BLOCK_ITEM  = "block_item"	;
 	public static final String ID          = "id"        	;
 	
-	public static final String ERROR 	          = "error"            	;
-	public static final String NO_SUCH_STAT_TYPE = "no_such_stat_type"	;
-	public static final String NOT_ENOUGH		= "not_enough"			;
+	public static final String ERROR 	          = "error" ;	public static final String UNHANDLEABLE = "unhandlable" ;
+	public static final String ERROR_KEY = join(SYSTEM_KEY,ERROR);
+	public static final String UNHANDLABLE_ERROR_KEY = join(ERROR_KEY,UNHANDLEABLE);
+	public static final String NO_SUCH   = "no_such"   ;
+	public static final String NOT_ENOUGH= "not_enough";
 	
 	
 	
@@ -137,13 +141,13 @@ public class CommandStatistics implements ModInitializer {
 	}
  
 
-	@SuppressWarnings("DataFlowIssue")
+	@SuppressWarnings({ "DataFlowIssue", "unused" })
 	public static <T> String castStat (T statSpecific  ){
 		try { ((Block) statSpecific ).getName()			; return BLOCK ; } catch (ClassCastException e1) { String block 	= "not Block"  ;}
 		try { ((Item) statSpecific ).getName()			; return ITEM  ; } catch (ClassCastException e2) { String Item  	= "not Item"   ;}
 		try { ((EntityType<?>) statSpecific ).getName()	; return ENTITY; } catch (ClassCastException e3) { String Entity	= "not Entity"	;}
 		try { ( (Identifier) statSpecific ).getPath()	; return ID	; } catch (ClassCastException e3) { String Id 	= "not ID"	;}
-		return NO_SUCH_STAT_TYPE;
+		return join(NO_SUCH,STAT_TYPE);
 	}
 	
 	public static String    chooseCustomStatType( Identifier statSpecific ) {

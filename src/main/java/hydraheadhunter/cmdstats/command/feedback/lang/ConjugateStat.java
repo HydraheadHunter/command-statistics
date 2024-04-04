@@ -25,7 +25,7 @@ public class ConjugateStat {
      private static final String AFFIX_KEY_ROOT      = join(GRAMMAR_KEY, AFFIX);
      private static final String DEFINITE_KEY_ROOT   = join(GRAMMAR_KEY, DEFINITE);
      private static final String INDEFINITE_KEY_ROOT = join(GRAMMAR_KEY, INDEFINITE);
-     
+     private static final String NO_SUCH_STAT_TYPE   = join(ERROR_KEY,NO_SUCH,STAT_TYPE);
      
      public  static <T> MutableText conjugateStat( T statSpecific, int statValue, String plurality ) {
      //Set all logic variable

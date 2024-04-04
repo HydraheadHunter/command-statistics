@@ -11,16 +11,17 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import static hydraheadhunter.cmdstats.CommandStatistics.join;
+import static net.minecraft.text.Text.stringifiedTranslatable;
 
 public class StoreFeedback {
      private static final String BASE_KEY    = join( CommandStatistics.FEEDBACK_KEY , CommandStatistics.STORE     );
 
-     public  static <T> MutableText provideFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpecific, int statValue, ScoreboardObjective objective, ServerCommandSource... source ){
+     public  static <T> MutableText provideFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, ScoreboardObjective objective, ServerCommandSource... source ){
           
           MutableText objText = ((MutableText)objective.getDisplayName()).formatted(Formatting.YELLOW);
      
           if (source.length>0) source[0].sendFeedback(() -> Text.literal("Providing Store Feedback"), false);
-          return Text.stringifiedTranslatable(BASE_KEY, objText, QueryFeedback.provideFeedback(player, statType, statSpecific, statValue));
+          return stringifiedTranslatable(BASE_KEY, objText, QueryFeedback.provideFeedback(player, statType, statSpec, statValue));
      }
 
 }

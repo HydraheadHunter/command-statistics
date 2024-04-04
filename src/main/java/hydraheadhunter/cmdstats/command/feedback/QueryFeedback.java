@@ -25,23 +25,21 @@ public class QueryFeedback {
      private static final String INTEGER_KEY = join( BASE_KEY     , INTEGER  );
      private static final String SCORE_KEY   = join( BASE_KEY     , SCORE    );
      
-     private static final String ERROR_STAT_TYPE = join( BASE_KEY , ERROR, NO_SUCH_STAT_TYPE);
-     private static final String JOIN_COLON      = join(JOIN_KEY  , "2", COLON        );
-     
-     private static final String CUSTOM_KEY      = join(BASE_KEY  , CUSTOM           );
-     
+     private static final String ERROR_STAT_TYPE = join( ERROR_KEY, NO_SUCH, STAT_TYPE);
+     private static final String JOIN_COLON      = join( JOIN_KEY  , "2", COLON       );
+     private static final String CUSTOM_KEY      = join( BASE_KEY  , CUSTOM           );
      private static final int[] A_LOT_int = {100000, 50000, 5000, 100000};
      
-     public  static <T> MutableText provideFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpecific, int statValue, ServerCommandSource... source ){
-          if (statType.equals(Stats.CUSTOM)) return provideCustomFeedback(player, (Identifier) statSpecific, statValue, source);
+     public  static <T> MutableText provideFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, ServerCommandSource... source ){
+          if (statType.equals(Stats.CUSTOM)) return provideCustomFeedback(player, (Identifier) statSpec, statValue, source);
           
-          String statTypeCode       = castStat(statSpecific);
+          String statTypeCode       = castStat(statSpec);
           String pluralityFormat    = choosePlurality(statTypeCode, statValue, true);
           String pluralityConjugate = choosePlurality(statTypeCode, statValue, false);
-          String formatKey          = chooseFormatKey(statTypeCode, statType, statSpecific, pluralityFormat);
+          String formatKey          = chooseFormatKey(statTypeCode, statType, statSpec, pluralityFormat);
           Text playerName           = player.getName();
           Text statTypeText         = ConjugateStatType.conjugateStatType(statType, pluralityConjugate);
-          Text statSpecificText     = ConjugateStat.conjugateStat( statSpecific,statValue, pluralityConjugate );
+          Text statSpecificText     = ConjugateStat.conjugateStat( statSpec,statValue, pluralityConjugate );
           Text statValueText        = Text.literal( String.valueOf(statValue) );
           
           if (source.length >= 1) {
@@ -64,20 +62,20 @@ public class QueryFeedback {
                     statValue >= A_LOT_int[indexFrom(statTypeCode)] ? join(conPlural , conA_Lot) : conPlural  ;
           }
      }
-     private static <T> String chooseFormatKey         ( String statTypeCode, StatType<T> statType, T statSpecific, String plurality                                 ){
+     private static <T> String chooseFormatKey         ( String statTypeCode, StatType<T> statType, T statSpec, String plurality                                     ){
           String toReturn = join(BASE_KEY, plurality);
           toReturn = (statType.equals(Stats.KILLED    )) ? join(toReturn, KILLED    ):toReturn;
           toReturn = (statType.equals(Stats.KILLED_BY )) ? join(toReturn, KILLED_BY ):toReturn;
-          toReturn = join(toReturn, chooseSpecialEntityKey( statTypeCode, statType, statSpecific) );
+          toReturn = join(toReturn, chooseSpecialEntityKey( statTypeCode, statType, statSpec) );
           
           return toReturn;
      }
-     private static <T> String chooseCustomKey         (                                         T statSpecific                                                   ){
+     private static <T> String chooseCustomKey         (                                         T statSpec                                                          ){
           return CUSTOM_KEY; //TODO in v0.7.0 Implement all this bullshit-ass nonsense.
      }
-     private static <T> String chooseSpecialEntityKey  ( String statTypeCode, StatType<T> statType, T statSpecific                                                   ){
+     private static <T> String chooseSpecialEntityKey  ( String statTypeCode, StatType<T> statType, T statSpec                                                       ){
           if (!statTypeCode.equals(ENTITY)) return EMPTY;
-          EntityType<?> entityType = ((EntityType<?>)statSpecific);
+          EntityType<?> entityType = ((EntityType<?>)statSpec);
           String        transKey   = entityType.getTranslationKey();
           String     subTransKey   = transKey.substring(transKey.lastIndexOf("."));
           boolean     isSpecialK   = entityType.isIn(ModTags.Entity_Types.IS_SPECIAL_KILLED    );
