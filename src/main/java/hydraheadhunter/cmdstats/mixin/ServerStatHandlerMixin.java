@@ -1,14 +1,9 @@
 package hydraheadhunter.cmdstats.mixin;
 
 import hydraheadhunter.cmdstats.util.iStatHandlerMixin;
-import net.minecraft.client.sound.Sound;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.SayCommand;
 import net.minecraft.stat.ServerStatHandler;
-import org.apache.commons.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,7 +15,7 @@ import java.util.Collection;
 import static hydraheadhunter.cmdstats.CommandStatistics.MOD_ID;
 
 @Mixin(ServerStatHandler.class)
-public class ExampleMixin_2 implements iStatHandlerMixin {
+public class ServerStatHandlerMixin implements iStatHandlerMixin {
 	public Collection<File> projectDirectories;
 	
 	@Override

@@ -49,7 +49,7 @@ import static net.minecraft.text.Text.literal;
 
 //TODO implement block, item, entityType tags to allow bundling item stats in query and record 'all music disks,'
 // eg All music disks, any diamond armors
-@SuppressWarnings("RedundantThrows")
+@SuppressWarnings({"RedundantThrows", "BoundedWildcard"})
 public class StatisticsCommand {
      private static final int EN_ADD       =  2;     private static final int EN_QUERY     =  3;     private static final int EN_REDUCE    =  5;
      private static final int EN_SET       =  7;     private static final int EN_STORE     = 11;     private static final int EN_BROKEN    = 13;
@@ -977,7 +977,7 @@ public class StatisticsCommand {
                }
                
                catch (IOException e) {
-                    throw new RuntimeException(e);
+                    source.sendFeedback(()-> literal("There was a problem creating the file."), false);
                }
                
                
@@ -989,12 +989,12 @@ public class StatisticsCommand {
      
      private static int executeProjectSTOP ( CommandContext<ServerCommandSource> context, String projectName){
           ServerCommandSource source = context.getSource();
-          source.sendFeedback(() -> literal("Project has not been fully implemented yet. The Project name was" +projectName),false);
+          source.sendFeedback(() -> literal("Project has not been fully implemented yet.  The Project name was" +projectName),false);
           return -2;
      }
      
      private static int executeProjectPAUSE( CommandContext<ServerCommandSource> context, String projectName){ServerCommandSource source = context.getSource();
-          source.sendFeedback(() -> literal("Project has not been fully implemented yet. The Project name was" +projectName),false);
+          source.sendFeedback(() -> literal("Project has not been fully implemented yet.   The Project name was" +projectName),false);
           return -2;
      }
      
