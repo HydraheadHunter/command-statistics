@@ -11,6 +11,8 @@ import hydraheadhunter.cmdstats.command.argument.ItemArgumentType;
 import hydraheadhunter.cmdstats.command.feedback.*;
 import hydraheadhunter.cmdstats.command.suggestionprovider.BreakableItemSuggestionProvider;
 import hydraheadhunter.cmdstats.command.suggestionprovider.CustomStatsSuggestionProvider;
+import hydraheadhunter.cmdstats.util.iStatHandlerMixin;
+import io.netty.handler.timeout.IdleStateHandler;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -31,7 +33,10 @@ import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.WorldSavePath;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 
 import static hydraheadhunter.cmdstats.CommandStatistics.*;
@@ -940,9 +945,45 @@ public class StatisticsCommand {
           return toReturn;
      }
 
-     private static int executeProjectSTART( CommandContext<ServerCommandSource> context, String projectName){
+     private static int executeProjectSTART( CommandContext<ServerCommandSource> context, String projectName) throws CommandSyntaxException {
           ServerCommandSource source = context.getSource();
-          source.sendFeedback(() -> literal("Project has not been fully implemented yet. The Project name was" +projectName),false);
+          Collection<ServerPlayerEntity> players= EntityArgumentType.getPlayers(context,TARGETS);
+          
+          boolean directory_existed= false;
+          int players_added_to_project= 0;
+          String projectPath = "\\" +projectName;
+          String statsPath   = "\\"+ WorldSavePath.STATS.toString().substring(1);
+          for( ServerPlayerEntity player: players){
+               ServerStatHandler handler= player.getStatHandler();
+               
+               String worldPath = player.getWorld().toString(); worldPath = "\\"+worldPath.substring( worldPath.indexOf("[")+1, worldPath.indexOf("]"));
+               String uuid =player.getUuid().toString();
+               player.addCommandTag( join(MOD_ID,projectName,START) );
+               
+               //create the directory
+               String fullPathName= "saves" + worldPath + statsPath + projectPath;
+               File theDir = new File( fullPathName);
+               directory_existed= theDir.mkdirs() || directory_existed;
+               
+               ((iStatHandlerMixin) handler).addDirectory(theDir);
+               
+               File UUIDFile = new File( fullPathName +"\\"+uuid + ".json");
+               try {
+                    if (UUIDFile.createNewFile())
+                         players_added_to_project +=1;
+                    else
+                         players_added_to_project +=0;
+                    
+               }
+               
+               catch (IOException e) {
+                    throw new RuntimeException(e);
+               }
+               
+               
+          }int finalPlayers_added_to_project = players_added_to_project;
+          source.sendFeedback(() -> literal("Project has not been fully implemented yet. The Project name was " +projectName +"\n"), false);
+          source.sendFeedback(()->literal( "added" + finalPlayers_added_to_project +"players to project")                          , false);
           return -1;
      }
      
