@@ -44,6 +44,7 @@ public class ModTags {
           }
 
      }
+
      public static class Items{
           public static final TagKey<Item> IS_IRREGULAR_NULL         = createTag("is_irregular_null"      );
           public static final TagKey<Item> IS_IRREGULAR_SINGLE       = createTag("is_irregular_single"    );

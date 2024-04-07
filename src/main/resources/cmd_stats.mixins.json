@@ -4,7 +4,9 @@
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
 		"ExampleMixin",
-		"ServerStatHandlerMixin"
+		"StatHandlerMixin",
+		"ServerStatHandlerMixin",
+		"PlayerProjectSaverMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

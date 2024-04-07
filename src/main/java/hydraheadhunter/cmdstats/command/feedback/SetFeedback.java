@@ -28,7 +28,7 @@ public class SetFeedback {
           MutableText statText;
           try {statText = FeedbackCommons.chooseStatName(statType,statSpec);} catch (NoSuchFieldException e) {return translatable(NO_SUCH_STAT_TYPE_KEY).formatted(Formatting.RED);}
           
-          return stringifiedTranslatable(INTEGER_KEY, statText, amountText, QueryFeedback.provideFeedback(player, statType, statSpec, statValue+amount) );
+          return stringifiedTranslatable(INTEGER_KEY, statText, amountText, QueryFeedback.provideFeedback(player, statType, statSpec, amount) );
      }
 
 
@@ -48,7 +48,7 @@ public class SetFeedback {
           MutableText statText;
           try {statText = FeedbackCommons.chooseStatName(statType,statSpec);} catch (NoSuchFieldException e) {return translatable(NO_SUCH_STAT_TYPE_KEY).formatted(Formatting.RED);}
           
-          return stringifiedTranslatable(INTEGER_KEY, statText, amountUnitsText, QueryFeedback.provideFeedback(player, statType, statSpec, statValue+amount) );
+          return stringifiedTranslatable(INTEGER_KEY, statText, amountUnitsText, QueryFeedback.provideFeedback(player, statType, statSpec, adjustedAmount) );
      }
      
      // statistics set @p [stat type] [stat] <scoreboard objective> <unit>

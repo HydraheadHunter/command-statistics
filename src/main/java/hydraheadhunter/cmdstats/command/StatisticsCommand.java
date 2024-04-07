@@ -11,8 +11,7 @@ import hydraheadhunter.cmdstats.command.argument.ItemArgumentType;
 import hydraheadhunter.cmdstats.command.feedback.*;
 import hydraheadhunter.cmdstats.command.suggestionprovider.BreakableItemSuggestionProvider;
 import hydraheadhunter.cmdstats.command.suggestionprovider.CustomStatsSuggestionProvider;
-import hydraheadhunter.cmdstats.util.iStatHandlerMixin;
-import io.netty.handler.timeout.IdleStateHandler;
+import hydraheadhunter.cmdstats.util.iPlayerProjectSaver;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -953,51 +952,55 @@ public class StatisticsCommand {
           int players_added_to_project= 0;
           String projectPath = "\\" +projectName;
           String statsPath   = "\\"+ WorldSavePath.STATS.toString().substring(1);
-          for( ServerPlayerEntity player: players){
-               ServerStatHandler handler= player.getStatHandler();
-               
-               String worldPath = player.getWorld().toString(); worldPath = "\\"+worldPath.substring( worldPath.indexOf("[")+1, worldPath.indexOf("]"));
-               String uuid =player.getUuid().toString();
-               player.addCommandTag( join(MOD_ID,projectName,START) );
+          for( ServerPlayerEntity serverPlayerEntity: players){
+               iPlayerProjectSaver player = (iPlayerProjectSaver) serverPlayerEntity;
+
+               String worldPath = ((ServerPlayerEntity)player).getWorld().toString(); worldPath = "\\"+worldPath.substring( worldPath.indexOf("[")+1, worldPath.indexOf("]"));
+               String uuid =((ServerPlayerEntity)player).getUuid().toString();
                
                //create the directory
                String fullPathName= "saves" + worldPath + statsPath + projectPath;
                File theDir = new File( fullPathName);
-               directory_existed= theDir.mkdirs() || directory_existed;
+               directory_existed = theDir.mkdirs() || directory_existed;
+               directory_existed = player.addDirectory(theDir);
+
+
+
                
-               ((iStatHandlerMixin) handler).addDirectory(theDir);
-               
-               File UUIDFile = new File( fullPathName +"\\"+uuid + ".json");
-               try {
-                    if (UUIDFile.createNewFile())
-                         players_added_to_project +=1;
-                    else
-                         players_added_to_project +=0;
-                    
-               }
-               
-               catch (IOException e) {
-                    source.sendFeedback(()-> literal("There was a problem creating the file."), false);
-               }
-               
-               
-          }int finalPlayers_added_to_project = players_added_to_project;
-          source.sendFeedback(() -> literal("Project has not been fully implemented yet. The Project name was " +projectName +"\n"), false);
-          source.sendFeedback(()->literal( "added" + finalPlayers_added_to_project +"players to project")                          , false);
+          }
+          int finalPlayers_added_to_project = players_added_to_project;
           return -1;
      }
-     
+
+     private static int executeProjectPAUSE( CommandContext<ServerCommandSource> context, String projectName) throws CommandSyntaxException {
+          ServerCommandSource source = context.getSource();
+          Collection<ServerPlayerEntity> players= EntityArgumentType.getPlayers(context,TARGETS);
+          boolean directory_existed= false;
+          int players_added_to_project= 0;
+          String projectPath = "\\" +projectName;
+          String statsPath   = "\\"+ WorldSavePath.STATS.toString().substring(1);
+          for( ServerPlayerEntity serverPlayerEntity: players){
+               iPlayerProjectSaver player = (iPlayerProjectSaver) serverPlayerEntity;
+
+               String worldPath = ((ServerPlayerEntity)player).getWorld().toString(); worldPath = "\\"+worldPath.substring( worldPath.indexOf("[")+1, worldPath.indexOf("]"));
+               String uuid =((ServerPlayerEntity)player).getUuid().toString();
+
+               //create the directory
+               String fullPathName= "saves" + worldPath + statsPath + projectPath;
+               File theDir = new File( fullPathName);
+               directory_existed = player.removeDirectory(theDir);
+
+          }
+          int finalPlayers_added_to_project = players_added_to_project;
+          return -2;
+     }
+
      private static int executeProjectSTOP ( CommandContext<ServerCommandSource> context, String projectName){
           ServerCommandSource source = context.getSource();
-          source.sendFeedback(() -> literal("Project has not been fully implemented yet.  The Project name was" +projectName),false);
           return -2;
      }
      
-     private static int executeProjectPAUSE( CommandContext<ServerCommandSource> context, String projectName){ServerCommandSource source = context.getSource();
-          source.sendFeedback(() -> literal("Project has not been fully implemented yet.   The Project name was" +projectName),false);
-          return -2;
-     }
-     
+
      
      
      
