@@ -101,13 +101,13 @@ MIXIN_LOGGER.info(fileToRemovePath);
 
 	@Inject( method= "setStat", at=@At("HEAD"))
 	public void setStat(PlayerEntity player, Stat<?> stat, int value, CallbackInfo info) {
-		if( projectStatHandlers != null && !projectStatHandlers.isEmpty())
+		/*if( projectStatHandlers != null && !projectStatHandlers.isEmpty())
 			for (ServerStatHandler projectHandler: projectStatHandlers){
 				projectHandler.setStat(player, stat, value);
-			}
+			}*/
 	}
 
-	/*@Inject( method= "parse", at=@At("HEAD"))
+	@Inject( method= "parse", at=@At("HEAD"))
 	public void parse(DataFixer dataFixer, String json, CallbackInfo info) {
 		if( projectStatHandlers != null && !projectStatHandlers.isEmpty())
 			for (ServerStatHandler projectHandler: projectStatHandlers){
@@ -116,9 +116,12 @@ MIXIN_LOGGER.info(fileToRemovePath);
                 String projectJson = null;
                 try                   { projectJson = Files.readString(Paths.get(projectFile.getPath()));}
 				catch (IOException e) { throw new RuntimeException(e);                                   }
+				MIXIN_LOGGER.info(json);
+				MIXIN_LOGGER.info(projectJson);
+
                 projectHandler.parse(dataFixer, projectJson);
 			}
-	}*/
+	}
 
 	@Inject( method= "updateStatSet", at=@At("HEAD"))
 	public void updateStatSet(CallbackInfo info) {
