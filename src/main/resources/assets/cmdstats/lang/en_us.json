@@ -1,4 +1,15 @@
 {
+  "join.new_line": "%s\n  %s",
+  "feedback.project.list"             : "%s has %s active projects",
+  "feedback.project.list.paused"      : "%s has %s inactive projects",
+  "feedback.project.list.paused.also" : "%s alse has %s inactive projects",
+  "feedback.project.list.none"        : "%s has no active nor inactive projects",
+  "feedback.project.start"    : "Added %s players to the project %s:",
+  "feedback.project.start.new": "Added %s players to the new project %s:",
+  "feedback.project.stop"     : "Removed %s players to the project %s:",
+  "feedback.project.stop.all" : "Removed %s projects from among %s players. The projects removed were:",
+
+
 "_Comment: Parse the json" : "THESE ARE IMPORTANT FOR PARSING THE JSON. DETERMINES WHICH PLURALITY SHARE IDENTICAL CONJUGATIONS",
   "cmdstats.grammar.plurality.nil"    : "plural"  ,
   "cmdstats.grammar.plurality.single"  : "single"  ,

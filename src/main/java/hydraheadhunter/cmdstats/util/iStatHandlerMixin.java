@@ -1,13 +1,18 @@
 package hydraheadhunter.cmdstats.util;
 
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.ServerStatHandler;
 
 import java.io.File;
-import java.util.Collection;
 
 public interface iStatHandlerMixin {
-    boolean addDirectory(File directoryToAdd, String playerName);
-    boolean removeDirectory(File directoryToRemove, String playerName);
+    boolean addStatHandler    (File directoryToAdd    , String playerName);
+    boolean removeStatHandler (File directoryToRemove , String playerName);
+    boolean pauseStatHandler  (ServerStatHandler directoryToPause  , String playerName);
+    boolean unpauseStatHandler(ServerStatHandler directoryToUnpause, String playerName);
+    
+    boolean resetStatHandler    ();
+    boolean softResetStatHandlers();
+    
+    ServerStatHandler getProjectStatHandler(File file);
     File getFile();
 }

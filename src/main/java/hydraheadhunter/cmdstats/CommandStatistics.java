@@ -19,16 +19,17 @@ public class CommandStatistics implements ModInitializer {
 	public static final String MINECRAFT	= "minecraft"		;	public static final String MC = "mc";
 	
 	//Defining /statistics
-	public static final String ROOT_COMMAND	= "statistics"	;	public static final String TARGETS     = "targets"   ;	public static final String STAT        = "stat"      	;
-	public static final String AMOUNT       = "amount"     ;	public static final String OBJECTIVE   = "objective" ;
+	public static final String ROOT_COMMAND	= "statistics"	;	public static final String TARGETS     = "targets"   ;	public static final String STAT        = "stat"     ;
+	public static final String AMOUNT       = "amount"  	;	public static final String OBJECTIVE   = "objective" ;
 	
-	public static final String QUERY    	= "query"     	;	public static final String ADD         = "add"     ;	public static final String STORE       = "store"     	;
-	public static final String SET          = "set"        ;	public static final String REDUCE      = "reduce"  ;	public static final String PROJECT	    = "project"	;
-	public static final String INTEGER      = "integer" 	;	public static final String SCORE       = "score"   ;
+	public static final String QUERY    	= "query"	;	public static final String ADD         = "add"    	;	public static final String STORE      	= "store"  	;
+	public static final String SET          = "set"  	;	public static final String REDUCE      = "reduce" 	;	public static final String PROJECT	 	= "project"	;
+	public static final String INTEGER      = "integer"	;	public static final String SCORE       = "score"  	;	public static final String START 		= "start"	;
+	public static final String STOP			= "stop"	;	public static final String LIST		   = "list"		;
 	
 	public static final String STAT_TYPE    = "stat_type"  ;
-	public static final String MINED       	= "mined"     	;	public static final String CRAFTED     = "crafted"   ;	public static final String USED        = "used"      	;
-	public static final String BROKEN       = "broken"     ;	public static final String PICKED_UP   = "picked_up" ;	public static final String DROPPED     = "dropped" ;
+	public static final String MINED       	= "mined"     	;	public static final String CRAFTED     = "crafted"   ;	public static final String USED     	= "used"    ;
+	public static final String BROKEN       = "broken"     ;	public static final String PICKED_UP   = "picked_up" ;	public static final String DROPPED    	= "dropped" ;
 	public static final String KILLED       = "killed"    	;	public static final String KILLED_BY   = "killed_by" ;
 	public static final String CUSTOM      	= "custom"    	;
 	
@@ -107,7 +108,8 @@ public class CommandStatistics implements ModInitializer {
 	public static final String UNHANDLABLE_ERROR_KEY = join(ERROR_KEY,UNHANDLEABLE);
 	public static final String NO_SUCH   = "no_such"   ;
 	public static final String NOT_ENOUGH= "not_enough";
-	
+
+	public static final boolean CONFIG_MIXIN_DEBUG = true;
 	
 	
 	
@@ -129,17 +131,22 @@ public class CommandStatistics implements ModInitializer {
 	}
 	
 	
-	public static String join (String @NotNull ... strings){
+	public static String join ( String @NotNull ... strings){
 		String toReturn = "";
 		for ( String str : strings)
 			if (!str.equals(EMPTY)) toReturn = str.equals(strings[0]) ? strings[0]:String.join(".", toReturn, str) ;
 		return toReturn;
 	}
-	
+	public static String join_nl ( String @NotNull ... strings){
+		String toReturn = "";
+		for ( String str : strings)
+			if (!str.equals(EMPTY)) toReturn = str.equals(strings[0]) ? strings[0]:String.join("\n", toReturn, str) ;
+		return toReturn;
+	}
+
 	public static boolean customStatIsIn( Identifier stat, TagKey<Identifier> tagKey) {
 		return Stats.CUSTOM.getRegistry().getEntry(stat).isIn( tagKey );
 	}
- 
 
 	@SuppressWarnings({ "DataFlowIssue", "unused" })
 	public static <T> String castStat (T statSpecific  ){
