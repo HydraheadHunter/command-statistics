@@ -13,13 +13,8 @@ import static hydraheadhunter.cmdstats.CommandStatistics.*;
 import static net.minecraft.text.Text.*;
 
 public class GeneralFeedback {
-     private static final String BASE_KEY    = join( FEEDBACK_KEY , ADD     );
-     private static final String INTEGER_KEY = join( BASE_KEY     , INTEGER );
-     private static final String SCORE_KEY   = join( BASE_KEY     , SCORE   );
-     private static final String TWO_WORDS   = join( JOIN_KEY, "2");
-     
-     private static final String NO_SUCH_STAT_TYPE_KEY = join(ERROR_KEY,NO_SUCH,STAT_TYPE);
 
+/*
 // statistics store @p [stat type] [stat] [objective]
 	public  static <T> MutableText provideStoreFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, ScoreboardObjective objective, ServerCommandSource... source ){
           
@@ -223,5 +218,5 @@ public class GeneralFeedback {
           }
           
 	
-	
+*/
 }

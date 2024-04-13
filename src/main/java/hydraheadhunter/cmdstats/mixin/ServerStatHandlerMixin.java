@@ -1,30 +1,23 @@
 package hydraheadhunter.cmdstats.mixin;
 
-import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import hydraheadhunter.cmdstats.CommandStatistics;
 import hydraheadhunter.cmdstats.util.ModTags;
-import hydraheadhunter.cmdstats.util.iPlayerProjectSaver;
 import hydraheadhunter.cmdstats.util.iStatHandlerMixin;
-import net.minecraft.block.PumpkinBlock;import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.ServerStatHandler;
 import net.minecraft.stat.Stat;
 import net.minecraft.stat.StatHandler;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.Identifier;
-import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.Nullable;import org.spongepowered.asm.mixin.Mixin;
+import org.apache.logging.log4j.core.jmx.Server;import org.jetbrains.annotations.Nullable;import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.slf4j.Logger;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 import static hydraheadhunter.cmdstats.CommandStatistics.customStatIsIn;
@@ -32,7 +25,7 @@ import static hydraheadhunter.cmdstats.CommandStatistics.customStatIsIn;
 @Mixin(ServerStatHandler.class)
 public abstract class ServerStatHandlerMixin extends StatHandler implements iStatHandlerMixin{
 	private Collection<ServerStatHandler> projectStatHandlers;
-	private Collection<ServerStatHandler> pausedProjectStatHandlers;
+	private Collection<ServerStatHandler> pausedStatHandlers;
 	@Shadow private MinecraftServer server;
 	@Shadow private File file;
 
@@ -42,95 +35,22 @@ public abstract class ServerStatHandlerMixin extends StatHandler implements iSta
 
 	protected ServerStatHandlerMixin(MinecraftServer server, File file) { super();	}
 
-	public boolean addStatHandler(File directoryToAdd, String playerName) {
-		if (projectStatHandlers == null) {
-			if(DEBUG_MIXIN) MIXIN_LOGGER.info(LOGGER_PREFIX + "initializing projectStatHandlers.");
-			projectStatHandlers = new ArrayList<>();
-		}
-
-		String directoryString = directoryToAdd.toString();
+//iHandler Methods and Helpers
+	public void updateProjectStatHandlers( Collection<File> projectDirectories, Collection<File> pausedDirectories){
+		projectStatHandlers = new ArrayList<>();
+		pausedStatHandlers  = new ArrayList<>();
+		
+		for (File directory:projectDirectories)	projectStatHandlers.add( createHandlerToAdd(directory));
+		for (File directory:pausedDirectories)	pausedStatHandlers .add( createHandlerToAdd(directory));
+	}
+	
+	private ServerStatHandler createHandlerToAdd(File directoryToCheck){
+		String directoryString = directoryToCheck.toString();
 		String fileName = file.getName();
-		String fileToAddName = directoryString + "\\" +fileName;
-
-		ServerStatHandler handlerToAdd = new ServerStatHandler(server, new File(fileToAddName));
-		projectStatHandlers.add(handlerToAdd);
-		if(DEBUG_MIXIN) MIXIN_LOGGER.info(LOGGER_PREFIX + playerName + " had a project StatHandler associated with " + directoryString + " added.");
-		return true;
-	}
-	public boolean removeStatHandler(File directoryToRemove, String playerName) {
-		if (projectStatHandlers == null || projectStatHandlers.size()<1){
-			if(DEBUG_MIXIN) MIXIN_LOGGER.info(LOGGER_PREFIX + playerName + "had no project StatHandlers. There was nothing to remove.");
-			return false;
-		}
-
-		String directoryString  = directoryToRemove.toString();
-		String fileName         = file.getName();
-		String fileToRemovePath = directoryString + "\\" +fileName;
-		File   fileToRemove     = new File(fileToRemovePath);
-
-		if(projectStatHandlers.size()==1) {
-			ServerStatHandler handler = (ServerStatHandler) projectStatHandlers.toArray()[0];
-			iStatHandlerMixin iHandler = (iStatHandlerMixin) ((StatHandler) handler);
-			if (iHandler.getFile().getName().equals(fileToRemove.getName())) {
-				projectStatHandlers.remove(handler);
-				if(DEBUG_MIXIN) MIXIN_LOGGER.info(LOGGER_PREFIX + playerName +" had the project StatHandler associated with " + fileToRemovePath +" removed.\n" +
-						"They have no active projects remaining.");
-				return true;
-			}
-		}
-		else{
-			for (ServerStatHandler handlerItt : projectStatHandlers) {
-				iStatHandlerMixin iHandlerItt = (iStatHandlerMixin) ((StatHandler) handlerItt);
-				if (iHandlerItt.getFile().getName().equals(fileToRemove.getName())) {
-					projectStatHandlers.remove(handlerItt);
-					if(DEBUG_MIXIN) MIXIN_LOGGER.info( playerName +"had the projectStatHandler associated with " + fileToRemovePath +" removed.\n"+
-							"They have " + projectStatHandlers.size() + " active projects remaining.");
-					return true;
-				}
-			}
-		}
-
-		if(DEBUG_MIXIN) MIXIN_LOGGER.info( playerName + " did not have any projectStatHandlers associated with: " + fileToRemovePath + ". Nothing was removed.");
-		return false;
-	}
-	public boolean resetStatHandler(){
-		try { if (projectStatHandlers.size()<1)  return false; }
-		catch (NullPointerException e         ){ return false; }
-		projectStatHandlers= new ArrayList<>();
-		return true;
-	}
-	/*public boolean softResetStatHandlers(){
-		try { if (projectStatHandlers.size()<1)  return false; }
-		catch (NullPointerException e         ){ return false; }
-		for(ServerStatHandler handler: projectStatHandlers)
-			pauseStatHandler(handler);
-		projectStatHandlers= new ArrayList<>();
-		return true;
-	}*/
-	
-	public boolean pauseStatHandler  (ServerStatHandler handlerToPause  , String playerName){
-		if(projectStatHandlers== null || projectStatHandlers.isEmpty() || !projectStatHandlers.contains(handlerToPause)) return false;
-		if(pausedProjectStatHandlers == null) pausedProjectStatHandlers = new ArrayList<>();
-		
-		projectStatHandlers.remove(handlerToPause);
-		if (!pausedProjectStatHandlers.contains(handlerToPause)) {
-			pausedProjectStatHandlers.add(handlerToPause);
-			return true;
-		}
-		return false;
+		String newFileName = directoryString + "\\" +fileName;
+		return new ServerStatHandler( this.server, new File( newFileName) );
 	}
 	
-	public boolean unpauseStatHandler(ServerStatHandler handlerToUnpause, String playerName){
-		if(pausedProjectStatHandlers== null || pausedProjectStatHandlers.isEmpty() || !pausedProjectStatHandlers.contains(handlerToUnpause)) return false;
-		if(projectStatHandlers == null) projectStatHandlers = new ArrayList<>();
-		
-		pausedProjectStatHandlers.remove(handlerToUnpause);
-		if (!projectStatHandlers.contains(handlerToUnpause)) {
-			projectStatHandlers.add(handlerToUnpause);
-			return true;
-		}
-		return false;
-	}
 	
 	public@Nullable ServerStatHandler getProjectStatHandler(File file){
      		try{
@@ -144,7 +64,7 @@ public abstract class ServerStatHandlerMixin extends StatHandler implements iSta
      		}
      		catch (NullPointerException ignored) { }
 			try{
-				for(ServerStatHandler handler: pausedProjectStatHandlers){
+				for(ServerStatHandler handler: pausedStatHandlers){
 					iStatHandlerMixin iHandler= (iStatHandlerMixin) (StatHandler) handler;
 					File checkFile = iHandler.getFile();
 					if (file.toString().equals(checkFile.toString())){

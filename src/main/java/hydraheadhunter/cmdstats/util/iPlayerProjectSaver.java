@@ -7,12 +7,11 @@ import java.util.Collection;
 
 public interface iPlayerProjectSaver {
 	Collection<File> getProjectDirectories();
-	Collection<File> getPausedProjectDirectories();
+	Collection<File> getPausedDirectories();
 	boolean addDirectory    (File directoryToAdd    );
 	boolean removeDirectory (File directoryToRemove );
-	boolean pauseDirectory  (File directoryToPause  );
-	boolean unpauseDirectory(File directoryToUnpause);
-	
+	boolean pauseDirectory  (File directoryToPause, boolean... isPauseAll);
+
 	boolean resetDirectories    ();
 	boolean softResetDirectories();
 	

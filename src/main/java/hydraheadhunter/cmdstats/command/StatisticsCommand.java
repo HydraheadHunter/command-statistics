@@ -59,9 +59,11 @@ public class StatisticsCommand {
      private static final String NO_SUCH_UNIT_KEY = join(UNHANDLABLE_ERROR_KEY, NO_SUCH, UNIT );
      private static final CommandSyntaxException NO_SUCH_UNIT_EXCEPTION = new CommandSyntaxException( CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument(), Text.translatable( NO_SUCH_UNIT_KEY ) );
 
-     private static final String START= "start";     private static final String STOP = "stop";     private static final String PAUSE = "pause";
-     private static final String ALL  = "all"  ;     //private static final String STOP = "stop";     private static final String PAUSE = "pause";
-     public static final String PROJECT_NAME= "project name";
+          //private static final String STOP = "stop";     private static final String PAUSE = "pause";
+     
+	private static final String PROJECT_NAME_RESERVED_ERROR_KEY  = join (ERROR_KEY,PROJECT,"reserved" );
+	private static final String PROJECT_NAME_NOT_FOUND_ERROR_KEY = join (ERROR_KEY,PROJECT,"not_found");
+ 
      
 //TODO: Put QUERY EXECUTION OP in a config file
 //TODO: Implement 'Units' Argument for QUERY | STORE (Format the stat's output in terms of units)
@@ -924,7 +926,7 @@ public class StatisticsCommand {
                     scoreboard.getOrCreateScore(player, objective).setScore(statValue);
                handler.save();
                
-               source.sendFeedback(() -> GeneralFeedback.provideStoreFeedback(player, statType, statSpec, statValue, objective),false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideStoreFeedback(player, statType, statSpec, statValue, objective),false);
 
                toReturn +=statValue;
           }
@@ -933,155 +935,211 @@ public class StatisticsCommand {
 
 // /statistics project list @p <EXECUTE>
      private static int executeProjectLIST ( CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-          ServerCommandSource source = context.getSource();
           Collection<ServerPlayerEntity> players= EntityArgumentType.getPlayers(context,TARGETS);
-          int players_added_to_project= 0;
+		ServerCommandSource source = context.getSource();
+		
+          int numberOfPlayerProjects = 0;
+		
           for( ServerPlayerEntity serverPlayerEntity: players) {
+			
                iPlayerProjectSaver player = (iPlayerProjectSaver) serverPlayerEntity;
                Collection<File> projectDirectories = player.getProjectDirectories();
-			Collection<File> pausedProjectDirectories = player.getPausedProjectDirectories();
+			Collection<File> pausedProjectDirectories = player.getPausedDirectories();
+			
                source.sendFeedback(() -> ProjectFeedback.provideListFeedback(serverPlayerEntity,projectDirectories,pausedProjectDirectories),false);
-          }
-          return players.size();
-     }
-// /statistics project start @p [projectname] <EXECUTE>
-     private static int executeProjectSTART( CommandContext<ServerCommandSource> context, String projectName) throws CommandSyntaxException {
-     
-		ServerCommandSource source = context.getSource();
-		String sanitizedProjectName = sanitizeString(projectName);
-          Collection<ServerPlayerEntity> players= EntityArgumentType.getPlayers(context,TARGETS);
-		
-		boolean isReservedProjectName = projectName.equals(ALL);
-		if (isReservedProjectName){
-			source.sendFeedback(()-> ProjectFeedback.provideErrorFeedback( context, "Project Name is Reserved"),false);
-			return -1;
+          	
+			numberOfPlayerProjects+= projectDirectories.size()+ pausedProjectDirectories.size();
 		}
 		
-		//make directory if it doesn't exist.
-		File directory = new File( constructDirectoryPath(players,projectName));
-          boolean isNewProject= directory.mkdir();
-          
-          int numberOfPlayersAdded= 0;
-		Collection<ServerPlayerEntity> playersAdded = new ArrayList<ServerPlayerEntity>();
-          for( ServerPlayerEntity serverPlayerEntity: players){
-               iPlayerProjectSaver player = (iPlayerProjectSaver) serverPlayerEntity;
-               String uuid =((ServerPlayerEntity)player).getUuid().toString();
-			if (player.addDirectory(directory)) {
-				playersAdded.add(serverPlayerEntity);
-				numberOfPlayersAdded += 1;
-			}
-          }
-		int finalNumberOfPlayersAdded = numberOfPlayersAdded;
-		source.sendFeedback(()-> ProjectFeedback.provideStartFeedback(isNewProject,sanitizedProjectName,playersAdded,finalNumberOfPlayersAdded),false);
+          return numberOfPlayerProjects<1 ? -1:numberOfPlayerProjects;
+     }
+	// /statistics project start @p [projectname] <EXECUTE>
+     private static int executeProjectSTART( CommandContext<ServerCommandSource> context, String projectName) throws CommandSyntaxException {
+		//checks if projectName is reserved from use. Sends feedback and returns early failure if so.
+     	if (checkIsProjectNameReserved(context, projectName)) return -1;
 		
+     	Collection<ServerPlayerEntity> players= EntityArgumentType.getPlayers(context,TARGETS);
+		ServerCommandSource source = context.getSource();
+  
+		int numberofPlayersChecked=0;
+          int numberOfPlayersAdded= 0;
+		Collection<ServerPlayerEntity> playersAdded = new ArrayList<>();
+          boolean isNewProject=false;
+		
+		for( ServerPlayerEntity player: players){
+			ServerStatHandler handler = player.getStatHandler();
+			
+			File directory = new File( constructProjectDirectoryName(player,projectName));
+			if (numberofPlayersChecked == 0 && !directory.exists()) {
+				isNewProject= directory.mkdir();
+			}
+			
+               iPlayerProjectSaver iPlayer = (iPlayerProjectSaver) player;
+			
+			handler.save();
+				if (iPlayer.addDirectory(directory)) {
+					playersAdded.add(player);
+					numberOfPlayersAdded += 1;
+				}
+			handler.save();
+			
+			numberofPlayersChecked+=1;
+          }
+		
+		boolean finalIsNewProject = isNewProject;
+		source.sendFeedback(()-> ProjectFeedback.provideStartFeedback(finalIsNewProject, sanitizeString(projectName),playersAdded),false);
+		
+		//Return failure iff and only iff zero 'or fewer' players were added.
           return numberOfPlayersAdded<1 ? -1: numberOfPlayersAdded;
      }
-// /statistics project pause @p [projectname | "all"] <EXECUTE>
+	// /statistics project pause @p [projectname | "all"] <EXECUTE>
+	
 	private static int executeProjectPAUSE(CommandContext<ServerCommandSource> context, String projectName) throws CommandSyntaxException {
-               boolean isPauseAll = projectName.equals(ALL);
-     		ServerCommandSource source = context.getSource();
-     		String sanitizedProjectName = sanitizeString(projectName);
-               Collection<ServerPlayerEntity> players= EntityArgumentType.getPlayers(context,TARGETS);
-     				
-     		Collection<ServerPlayerEntity> playersPaused	= new ArrayList<ServerPlayerEntity>();
-     		Collection<File> 			 projectsPaused    = new ArrayList<File>		();
-     		
-               for( ServerPlayerEntity serverPlayerEntity: players){
-                    iPlayerProjectSaver player = (iPlayerProjectSaver) serverPlayerEntity;
-     			
-     			
-     			if (isPauseAll){
-     				Collection<File> projectDirectories =   player.getProjectDirectories();
-     					if (projectDirectories.size()>0) { playersPaused.add(serverPlayerEntity); }
-     					for (File directory: projectDirectories) {
-     						if ( ! projectsPaused.contains(directory) )
-     							projectsPaused.add(directory);
-     					}
-     					player.softResetDirectories();
-     			}
-     			else{
-     				File directory = new File( constructDirectoryPath(players,projectName));
-     				if(player.pauseDirectory(directory)){
-     					if ( ! playersPaused.contains(serverPlayerEntity))
-     						playersPaused.add(serverPlayerEntity);
-     					if ( ! projectsPaused.contains(directory))
-     						projectsPaused.add(directory);
-     				}
-     			}
-               }
-     		
-     		source.sendFeedback(()->ProjectFeedback.providePausedFeedback(isPauseAll, playersPaused, projectsPaused),false);
-               return isPauseAll	?	( projectsPaused.size()>0	?	projectsPaused.size(): -1 )	:
-               	  				( playersPaused .size()>0	?	playersPaused .size(): -1 )	;
-          }
-// /statistics project stop @p [projectname | "all"] <EXECUTE>
-     private static int executeProjectSTOP(CommandContext<ServerCommandSource> context, String projectName) throws CommandSyntaxException {
-          boolean isStopAll = projectName.equals(ALL);
-		ServerCommandSource source = context.getSource();
+		Collection<ServerPlayerEntity> players= EntityArgumentType.getPlayers(context,TARGETS);
 		String sanitizedProjectName = sanitizeString(projectName);
-          Collection<ServerPlayerEntity> players= EntityArgumentType.getPlayers(context,TARGETS);
-				
-		Collection<ServerPlayerEntity> playersRemoved	= new ArrayList<ServerPlayerEntity>();
-		Collection<File> 			 projectsRemoved    = new ArrayList<File>			();
+		ServerCommandSource source = context.getSource();
+		boolean isPauseAll = projectName.equals(ALL);
+  
+		Collection<ServerPlayerEntity> playersPaused	 = new ArrayList<>();
+		Collection<File> 			 projectsPaused = new ArrayList<>();
 		
-          for( ServerPlayerEntity serverPlayerEntity: players){
-               iPlayerProjectSaver player = (iPlayerProjectSaver) serverPlayerEntity;
+		int numberProjectsPaused = 0;
+		for( ServerPlayerEntity player: players){
+			ServerStatHandler handler = player.getStatHandler();
+			iPlayerProjectSaver iPlayer = (iPlayerProjectSaver) player;
 			
+			if (isPauseAll){
+				handler.save();
+					Collection<File> projectDirectories =   iPlayer.getProjectDirectories();
+					if (projectDirectories.size()>0) { playersPaused.add(player); }
+					for (File directory: projectDirectories) {
+						if ( ! projectsPaused.contains(directory) ){
+							projectsPaused.add(directory);
+						}
+					}
+					numberProjectsPaused+=projectDirectories.size();
+					iPlayer.softResetDirectories();
+				handler.save();
+			}
+			else{
+				File directory = new File( constructProjectDirectoryName(player,projectName));
+				handler.save();
+					if(iPlayer.pauseDirectory(directory)){
+						
+						if ( ! playersPaused.contains(player))
+							playersPaused.add(player);
+						
+						if ( ! projectsPaused.contains(directory))
+							projectsPaused.add(directory);
+						
+						numberProjectsPaused+=1;
+					}
+				handler.save();
+			}
+		}
+		
+		source.sendFeedback(()-> ProjectFeedback.providePausedFeedback(isPauseAll, playersPaused, projectsPaused, sanitizedProjectName),false);
+		
+		return numberProjectsPaused<1 ? -1:numberProjectsPaused;
+	}
+	
+	
+	
+	
+	
+	// /statistics project stop @p [projectname | "all"] <EXECUTE>
+     private static int executeProjectSTOP(CommandContext<ServerCommandSource> context, String projectName) throws CommandSyntaxException {
+          Collection<ServerPlayerEntity> players= EntityArgumentType.getPlayers(context,TARGETS);boolean isStopAll = projectName.equals(ALL);
+		String sanitizedProjectName = sanitizeString(projectName);
+		ServerCommandSource source = context.getSource();
+				
+		Collection<ServerPlayerEntity> playersRemoved  = new ArrayList<>();
+		Collection<File> 			 projectsRemoved = new ArrayList<>();
+		
+		int numberProjectStopped=0;
+          for( ServerPlayerEntity player: players){
+			ServerStatHandler handler = player.getStatHandler();
+               iPlayerProjectSaver iPlayer = (iPlayerProjectSaver) player;
 			
 			if (isStopAll){
-				Collection<File> projectDirectories =   player.getProjectDirectories();
-					if (projectDirectories.size()>0) { playersRemoved.add(serverPlayerEntity); }
+				Collection<File> projectDirectories = iPlayer.getProjectDirectories();
+				handler.save();
+					if (projectDirectories.size()>0) { playersRemoved.add(player); }
 					for (File directory: projectDirectories) {
 						if ( ! projectsRemoved.contains(directory) )
 							projectsRemoved.add(directory);
 					}
-					player.resetDirectories();
+					numberProjectStopped+= projectDirectories.size();
+					iPlayer.resetDirectories();
+				handler.save();
 			}
 			else{
-				File directory = new File( constructDirectoryPath(players,projectName));
-				if(player.removeDirectory(directory)){
-					if ( ! playersRemoved.contains(serverPlayerEntity))
-						playersRemoved.add(serverPlayerEntity);
-					if ( ! projectsRemoved.contains(directory))
-						projectsRemoved.add(directory);
-				}
+				File directory = new File( constructProjectDirectoryName(player,projectName));
+				handler.save();
+					if(iPlayer.removeDirectory(directory)){
+						if ( ! playersRemoved.contains(player))
+							playersRemoved.add(player);
+						if ( ! projectsRemoved.contains(directory))
+							projectsRemoved.add(directory);
+						numberProjectStopped+=1;
+					}
+				handler.save();
 			}
           }
 		
-		source.sendFeedback(()->ProjectFeedback.providePausedFeedback(isStopAll, playersRemoved, projectsRemoved),false);
-          return isStopAll	?	( projectsRemoved.size()>0	?	projectsRemoved.size(): -1 )	:
-          	  				( playersRemoved .size()>0	?	playersRemoved .size(): -1 )	;
+		source.sendFeedback(()->ProjectFeedback.provideStoppedFeedback(isStopAll, playersRemoved, projectsRemoved,""),false);
+		
+          return numberProjectStopped<1 ? -1:numberProjectStopped;
      }
 // /statistics project query @p <EXECUTE>
 	private static<T> int executeProjectQUERY(CommandContext<ServerCommandSource> context, Collection<ServerPlayerEntity> targets, StatType<T> statType, T statSpec, String projectName) {
+		if (checkIsProjectNameReserved(context, projectName)) return -1;
 		ServerCommandSource source = context.getSource();
-		String targetProjectDirectory = constructDirectoryPath(targets, projectName);
 		
 		int toReturn=0;
-		for (ServerPlayerEntity serverPlayerEntity: targets){
-			ServerStatHandler handler	= serverPlayerEntity.getStatHandler();
+		for (ServerPlayerEntity player: targets){
+			ServerStatHandler handler	= player.getStatHandler();
 			iStatHandlerMixin iHandler	= (iStatHandlerMixin)(StatHandler)handler;
-			String localuuidString		= serverPlayerEntity.getUuidAsString();
-			File targetFile			= new File(constructDirectoryPath(targets, projectName)+"\\"+ join(localuuidString, "json"));
+			File targetFile			= new File( constructProjectFileName(player,projectName) );
 			
 			handler.save();
 				ServerStatHandler targetHandler = iHandler.getProjectStatHandler(targetFile);
 				if (targetHandler==null) {
-					source.sendFeedback(()-> ProjectFeedback.provideErrorFeedback( context, "no_such.project.query"),false);
+					source.sendFeedback(()-> ProjectFeedback.provideErrorFeedback( context, PROJECT_NAME_NOT_FOUND_ERROR_KEY),false);
 					return -1;
 				}
 				int statValue = targetHandler.getStat(statType, statSpec);
 			handler.save();
 
-			source.sendFeedback(() -> QueryFeedback.provideFeedback(serverPlayerEntity, statType, statSpec, statValue),false);
+			source.sendFeedback(() -> ProjectFeedback.provideQueryFeedback(player, statType, statSpec, statValue, sanitizeString(projectName)),false);
 
 			toReturn +=statValue;
 		}
 		return toReturn;
 	}
 // /statistics project store @p <EXECUTE>
-	private static<T> int executeProjectSTORE(CommandContext<ServerCommandSource> context, Collection<ServerPlayerEntity> players, StatType<T> statType, T statSpec, ScoreboardObjective objective, String projectName){
-		return -1;
+	private static<T> int executeProjectSTORE(CommandContext<ServerCommandSource> context, Collection<ServerPlayerEntity> targets, StatType<T> statType, T statSpec, ScoreboardObjective objective, String projectName){
+		if (checkIsProjectNameReserved(context, projectName)) return -1;
+		
+		ServerCommandSource source = context.getSource();
+		int toReturn=0;
+		for (ServerPlayerEntity player : targets) {
+			ServerStatHandler handler	= player.getStatHandler();
+			Scoreboard scoreboard         = source.getServer().getScoreboard();
+			iStatHandlerMixin iHandler	= (iStatHandlerMixin)(StatHandler)handler;
+			File targetFile			= new File( constructProjectFileName(player,projectName) );
+			
+			ServerStatHandler targetHandler = iHandler.getProjectStatHandler(targetFile);
+			handler.save();
+				int statValue = targetHandler.getStat(statType, statSpec);
+				scoreboard.getOrCreateScore(player, objective).setScore(statValue);
+			handler.save();
+			
+		     source.sendFeedback(() -> ProjectFeedback.provideStoreFeedback(player, statType, statSpec, statValue, objective, sanitizeString(projectName)),false);
+
+			toReturn +=statValue;
+		}
+		return toReturn;
 	}
 
 
@@ -1096,7 +1154,7 @@ public class StatisticsCommand {
                player.increaseStat( statType.getOrCreateStat(statSpec), amount);
                handler.save();
 
-               source.sendFeedback(() -> GeneralFeedback.provideAddFeedback(player, statType, statSpec, statValue, amount),false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideAddFeedback(player, statType, statSpec, statValue, amount),false);
                toReturn+=amount;
 
           }
@@ -1117,7 +1175,7 @@ public class StatisticsCommand {
                handler.save();
                
                
-               source.sendFeedback(() -> GeneralFeedback.provideAddFeedback(player, statType, statSpec, statValue, amount, obj),false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideAddFeedback(player, statType, statSpec, statValue, amount, obj),false);
                toReturn+=amount;
 
           }
@@ -1134,7 +1192,7 @@ public class StatisticsCommand {
                player.increaseStat( statType.getOrCreateStat(statSpec), adjustedAmount);
                handler.save();
                
-               source.sendFeedback(() -> GeneralFeedback.provideAddFeedback(player, statType, statSpec, statValue, amount, adjustedAmount, unit),false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideAddFeedback(player, statType, statSpec, statValue, amount, adjustedAmount, unit),false);
                toReturn+=adjustedAmount;
                
           }
@@ -1155,7 +1213,7 @@ public class StatisticsCommand {
                handler.save();
                
                
-               source.sendFeedback(() -> GeneralFeedback.provideAddFeedback(player, statType, statSpec, statValue, amount, obj, adjustedAmount, unit),false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideAddFeedback(player, statType, statSpec, statValue, amount, obj, adjustedAmount, unit),false);
                toReturn+=adjustedAmount;
 
           }
@@ -1174,7 +1232,7 @@ public class StatisticsCommand {
                     player.increaseStat(statType.getOrCreateStat(statSpec), amount);
                handler.save();
                
-               source.sendFeedback(() -> GeneralFeedback.provideSetFeedback(player, statType, statSpec, statValue, amount),false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideSetFeedback(player, statType, statSpec, statValue, amount),false);
                
                toReturn+=amount;
           }
@@ -1195,7 +1253,7 @@ public class StatisticsCommand {
                player.increaseStat(statType.getOrCreateStat(statSpec), amount);
                handler.save();
                
-               source.sendFeedback(() -> GeneralFeedback.provideSetFeedback(player, statType, statSpec, statValue, amount, obj), false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideSetFeedback(player, statType, statSpec, statValue, amount, obj), false);
                
                toReturn+=amount;
           }
@@ -1215,7 +1273,7 @@ public class StatisticsCommand {
                player.increaseStat(statType.getOrCreateStat(statSpec), adjustedAmount);
                handler.save();
                
-               source.sendFeedback(() -> GeneralFeedback.provideSetFeedback(player, statType, statSpec, statValue, amount, adjustedAmount, unit),false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideSetFeedback(player, statType, statSpec, statValue, amount, adjustedAmount, unit),false);
                
                toReturn+=adjustedAmount;
           }
@@ -1238,7 +1296,7 @@ public class StatisticsCommand {
                player.increaseStat(statType.getOrCreateStat(statSpec), adjustedAmount);
                handler.save();
                
-               source.sendFeedback(() -> GeneralFeedback.provideSetFeedback(player, statType, statSpec, statValue, amount, obj, adjustedAmount, unit), false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideSetFeedback(player, statType, statSpec, statValue, amount, obj, adjustedAmount, unit), false);
                
                toReturn+=adjustedAmount;
           }
@@ -1259,7 +1317,7 @@ public class StatisticsCommand {
                     player.increaseStat(statType.getOrCreateStat(statSpec), statValueNext);
                handler.save();
 
-               source.sendFeedback(() -> GeneralFeedback.provideReduceFeedback(player, statType, statSpec, statValue, amount), false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideReduceFeedback(player, statType, statSpec, statValue, amount), false);
 
                toReturn+=amount;
           }
@@ -1281,7 +1339,7 @@ public class StatisticsCommand {
                player.increaseStat(statType.getOrCreateStat(statSpec), statValueNext);
                handler.save();
                
-               source.sendFeedback(() -> GeneralFeedback.provideReduceFeedback(player, statType, statSpec, statValue, amount, obj), false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideReduceFeedback(player, statType, statSpec, statValue, amount, obj), false);
                
                toReturn+=amount;
           }
@@ -1301,7 +1359,7 @@ public class StatisticsCommand {
                player.increaseStat(statType.getOrCreateStat(statSpec), statValueNext);
                handler.save();
                
-               source.sendFeedback(() -> GeneralFeedback.provideReduceFeedback(player, statType, statSpec, statValue, amount, adjustedAmount, unit), false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideReduceFeedback(player, statType, statSpec, statValue, amount, adjustedAmount, unit), false);
                
                toReturn+=adjustedAmount;
           }
@@ -1325,7 +1383,7 @@ public class StatisticsCommand {
                player.increaseStat(statType.getOrCreateStat(statSpec), statValueNext);
                handler.save();
                
-               source.sendFeedback(() -> GeneralFeedback.provideReduceFeedback(player, statType, statSpec, statValue, amount, obj, adjustedAmount, unit), false);
+          //     source.sendFeedback(() -> GeneralFeedback.provideReduceFeedback(player, statType, statSpec, statValue, amount, obj, adjustedAmount, unit), false);
                
                toReturn+=adjustedAmount;
           }
@@ -1335,9 +1393,12 @@ public class StatisticsCommand {
 	
     
 	
-	
-	private static String constructDirectoryPath(Collection<ServerPlayerEntity> players, String projectName){
-		World world =((ServerPlayerEntity)players.toArray()[0]).getWorld();
+	private static String constructProjectFileName      ( ServerPlayerEntity player, String projectName){
+		return constructProjectDirectoryName(player,projectName) +
+		 "\\" + join( player.getUuidAsString(), "json");
+	}
+	private static String constructProjectDirectoryName ( ServerPlayerEntity player, String projectName){
+		World world =player.getWorld();
 		MinecraftServer server= world.getServer();
 		String sanitizedProjectName = sanitizeString(projectName);
 		
@@ -1349,9 +1410,24 @@ public class StatisticsCommand {
 		
 		return "." + (isSaves? savesDir:EMPTY) + worldDir + statsDir+ projectDir;
 	}
+	
+	private static boolean checkIsProjectNameReserved( CommandContext<ServerCommandSource> context, String projectName){
+		ServerCommandSource source= context.getSource();
+		boolean isReservedProjectName = projectName.equals(ALL);
+		if (isReservedProjectName){
+		source.sendFeedback(()-> ProjectFeedback.provideErrorFeedback( context, PROJECT_NAME_RESERVED_ERROR_KEY),false);
+		
+		return true;
+		}
+		return false;
+	}
+	
 	private static String sanitizeString(String stringToSanitize){
           		return stringToSanitize.replace(".","_");
           	}
+			
+	
+			
      @SuppressWarnings("DataFlowIssue")
      private static <T> int CheckUnitIsValidAndConvert_FROM_Unit(int amount, String unit, T statSpec) throws CommandSyntaxException{
           if (amount ==0) return 0;

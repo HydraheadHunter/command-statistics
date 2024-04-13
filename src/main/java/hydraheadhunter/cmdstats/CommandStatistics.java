@@ -8,7 +8,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.stat.Stats;
-import net.minecraft.util.Identifier;
+import net.minecraft.text.Text;import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +22,12 @@ public class CommandStatistics implements ModInitializer {
 	public static final String ROOT_COMMAND	= "statistics"	;	public static final String TARGETS     = "targets"   ;	public static final String STAT        = "stat"     ;
 	public static final String AMOUNT       = "amount"  	;	public static final String OBJECTIVE   = "objective" ;
 	
-	public static final String QUERY    	= "query"	;	public static final String ADD         = "add"    	;	public static final String STORE      	= "store"  	;
-	public static final String SET          = "set"  	;	public static final String REDUCE      = "reduce" 	;	public static final String PROJECT	 	= "project"	;
-	public static final String INTEGER      = "integer"	;	public static final String SCORE       = "score"  	;	public static final String START 		= "start"	;
-	public static final String STOP			= "stop"	;	public static final String LIST		   = "list"		;
+	public static final String QUERY    	= "query"	 	;	public static final String ADD     = "add"   	;	public static final String STORE	= "store"  ;
+	public static final String SET          = "set"  	 	;	public static final String REDUCE  = "reduce"	;	public static final String PROJECT	= "project";
+	public static final String INTEGER      = "integer"	;	public static final String SCORE  	= "score" 	;
+	public static final String LIST   		= "list"		;	public static final String START	= "start"		;    public static final String STOP 	= "stop"		;
+	public static final String PAUSE 		= "pause"		;	public static final String ALL  	= "all"  		;	public static final String PROJECT_NAME= "project name";
+	
 	
 	public static final String STAT_TYPE    = "stat_type"  ;
 	public static final String MINED       	= "mined"     	;	public static final String CRAFTED     = "crafted"   ;	public static final String USED     	= "used"    ;
@@ -73,7 +75,7 @@ public class CommandStatistics implements ModInitializer {
 	public static final int POINTS_per_HEART   = 2     	;	public static final int SLICES_per_CAKE   = 7     ;
 	
 //Translation Keys
-	public static final String FEEDBACK_KEY = join(MOD_ID, "feedback" 	 )	;	public static final String GRAMMAR_KEY  = join(MOD_ID, "grammar"   )	;	public static final String SYSTEM_KEY	= join(MOD_ID, "system"		);
+	public static final String FEEDBACK_KEY = join(MOD_ID, "feedback" 	 )	;	public static final String SYSTEM_KEY	= join(MOD_ID, "system"		);	public static final String GRAMMAR_KEY  = join(SYSTEM_KEY, "grammar"   )	;
 	public static final String STATTYPE_KEY = join(MOD_ID, "stattype"      );
 	public static final String PLURALITY_KEY= join(GRAMMAR_KEY, "plurality")	;	public static final String JOIN_KEY     = join(GRAMMAR_KEY, "join" )	;	public static final String TENSE_KEY	= join(GRAMMAR_KEY, "tense"	);
 	
@@ -104,12 +106,12 @@ public class CommandStatistics implements ModInitializer {
 	public static final String ID          = "id"        	;
 	
 	public static final String ERROR 	          = "error" ;	public static final String UNHANDLEABLE = "unhandlable" ;
-	public static final String ERROR_KEY = join(SYSTEM_KEY,ERROR);
+	public static final String ERROR_KEY = join(FEEDBACK_KEY,ERROR);
 	public static final String UNHANDLABLE_ERROR_KEY = join(ERROR_KEY,UNHANDLEABLE);
 	public static final String NO_SUCH   = "no_such"   ;
 	public static final String NOT_ENOUGH= "not_enough";
 
-	public static final boolean CONFIG_MIXIN_DEBUG = true;
+	public static final boolean CONFIG_MIXIN_DEBUG = false;
 	
 	
 	
@@ -143,7 +145,14 @@ public class CommandStatistics implements ModInitializer {
 			if (!str.equals(EMPTY)) toReturn = str.equals(strings[0]) ? strings[0]:String.join("\n", toReturn, str) ;
 		return toReturn;
 	}
-
+	
+	public static String systemLiteral(String key, Object... args){
+		return Text.stringifiedTranslatable(key,args).getString();
+	}
+	
+	
+	
+	
 	public static boolean customStatIsIn( Identifier stat, TagKey<Identifier> tagKey) {
 		return Stats.CUSTOM.getRegistry().getEntry(stat).isIn( tagKey );
 	}
