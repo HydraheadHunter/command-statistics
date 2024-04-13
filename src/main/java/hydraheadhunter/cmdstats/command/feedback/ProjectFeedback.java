@@ -14,6 +14,7 @@ import static net.minecraft.text.Text.*;
 
 public class ProjectFeedback {
 	private static final String LOCAL_KEY = PROJECT;
+	
 	private static final String FORMAT_BASE_KEY= join(FEEDBACK_KEY,FORMAT,LOCAL_KEY);
 	private static final String LIST_KEY 			= join(FORMAT_BASE_KEY,LIST);
 	private static final String LIST_PAUSE_KEY		= join(LIST_KEY,PAUSE);
@@ -23,9 +24,13 @@ public class ProjectFeedback {
 	private static final String START_NIL_KEY 		= join(START_KEY,NIL);
 	private static final String START_NEW_KEY 		= join(START_KEY,"new");
 	private static final String PAUSE_KEY 			= join(FORMAT_BASE_KEY,PAUSE);
+	private static final String PAUSE_NIL_KEY		= join(PAUSE_KEY,NIL);
 	private static final String PAUSE_ALL_KEY		= join(PAUSE_KEY,ALL);
+	private static final String PAUSE_ALL_NIL_KEY	= join(PAUSE_ALL_KEY,NIL);
 	private static final String STOP_KEY 			= join(FORMAT_BASE_KEY,STOP);
+	private static final String STOP_NIL_KEY		= join(STOP_KEY,NIL);
 	private static final String STOP_ALL_KEY		= join(STOP_KEY,ALL);
+	private static final String STOP_ALL_NIL_KEY		= join(STOP_ALL_KEY,NIL);
 	private static final String QUERY_KEY 			= join(FORMAT_BASE_KEY,QUERY);
 	private static final String STORE_KEY			= join(FORMAT_BASE_KEY,STORE);
 	
@@ -74,44 +79,41 @@ public class ProjectFeedback {
 	}
 	
     	public static MutableText providePausedFeedback(boolean isPauseAll, Collection<ServerPlayerEntity> playersPaused, Collection<File> projectsPaused, String targetProjectName){
-		MutableText projectsRemovedList	= constructProjectList(projectsPaused)					.formatted(Formatting.GOLD)	;
-		MutableText playersRemovedList 	= constructPlayerList(playersPaused)					.formatted(Formatting.GOLD)	;
-		MutableText projectsRemovedCount	= (MutableText) literal( valueOf(projectsPaused.size() ))	.formatted(Formatting.GOLD)	;
-		MutableText playerRemovedCount	= (MutableText) literal( valueOf(playersPaused.size()  ))	.formatted(Formatting.GOLD)	;
+		MutableText projectsPausedList	= constructProjectList(projectsPaused)					.formatted(Formatting.GOLD)	;
+		MutableText playersPausedList		= constructPlayerList(playersPaused)					.formatted(Formatting.GOLD)	;
+		MutableText projectPauseCountText	= (MutableText) literal( valueOf(projectsPaused.size() ))	.formatted(Formatting.GOLD)	;
+		MutableText playerPauseCountText	= (MutableText) literal( valueOf(playersPaused.size() ))	.formatted(Formatting.GOLD)	;
 		String projectPlurality			= choosePlurality(projectsPaused.size())				.formatted(Formatting.GOLD)	;
 		String playerPlurality			= choosePlurality(playersPaused.size())					.formatted(Formatting.GOLD)	;
 		MutableText targetProjectNameText	= literal(targetProjectName);
 		
 		int switchValue = (isPauseAll?0:1) + (projectsPaused.size()<1?0:2);
 		return switch (switchValue) {
-			case 0 -> translatable( join(PAUSE_ALL_KEY,NIL)																												).formatted(Formatting.RED)	;
-			case 1 -> translatable( join(PAUSE_KEY,NIL)	,																							targetProjectNameText	).formatted(Formatting.RED)	;
-			case 2 -> translatable( join(PAUSE_ALL_KEY	,	playerPlurality,	projectPlurality	),	playerRemovedCount,	projectsRemovedCount,	playersRemovedList,	projectsRemovedList		)						;
-			case 3 -> translatable( join(PAUSE_KEY		,	playerPlurality					),	playerRemovedCount,	projectsRemovedCount,	playersRemovedList,	projectsRemovedList		)						;
+			case 0 -> translatable( 		PAUSE_ALL_NIL_KEY																												).formatted(Formatting.RED)	;
+			case 1 -> translatable( 		PAUSE_NIL_KEY	,																							targetProjectNameText	).formatted(Formatting.RED)	;
+			case 2 -> translatable( join(	PAUSE_ALL_KEY	,	playerPlurality,	projectPlurality	),	playerPauseCountText,	projectPauseCountText,	playersPausedList,	projectsPausedList		)						;
+			case 3 -> translatable( join(	PAUSE_KEY		,	playerPlurality					),	playerPauseCountText,	projectPauseCountText,	playersPausedList,	projectsPausedList		)						;
 			default -> literal(IMPOSSIBLE_SWITCH).formatted(Formatting.RED);
 		};
-		
 	}
-
 	
-	public static MutableText provideStoppedFeedback(boolean isPauseAll, Collection<ServerPlayerEntity> playersPaused, Collection<File> projectsPaused, String targetProjectName){
-		MutableText projectsRemovedList	= constructProjectList(projectsPaused)					.formatted(Formatting.GOLD)	;
-		MutableText playersRemovedList 	= constructPlayerList(playersPaused)					.formatted(Formatting.GOLD)	;
-		MutableText projectsRemovedCount	= (MutableText) literal( valueOf(projectsPaused.size() ))	.formatted(Formatting.GOLD)	;
-		MutableText playerRemovedCount	= (MutableText) literal( valueOf(playersPaused.size()  ))	.formatted(Formatting.GOLD)	;
-		String projectPlurality			= choosePlurality(projectsPaused.size())				.formatted(Formatting.GOLD)	;
-		String playerPlurality			= choosePlurality(playersPaused.size())					.formatted(Formatting.GOLD)	;
+	public static MutableText provideStoppedFeedback(boolean isPauseAll, Collection<ServerPlayerEntity> playersRemoved, Collection<File> projectsRemoved, String targetProjectName){
+		MutableText projectsRemovedList	= constructProjectList(projectsRemoved)					.formatted(Formatting.GOLD)	;
+		MutableText playersRemovedList	= constructPlayerList(playersRemoved)					.formatted(Formatting.GOLD)	;
+		MutableText projectRemovedCountText= (MutableText) literal( valueOf(projectsRemoved.size() ))	.formatted(Formatting.GOLD)	;
+		MutableText playerRemovedCountText	= (MutableText) literal( valueOf(playersRemoved.size() ))	.formatted(Formatting.GOLD)	;
+		String projectPlurality			= choosePlurality(projectsRemoved.size())				.formatted(Formatting.GOLD)	;
+		String playerPlurality			= choosePlurality(playersRemoved.size())				.formatted(Formatting.GOLD)	;
 		MutableText targetProjectNameText	= literal(targetProjectName);
 		
-		int switchValue = (isPauseAll?0:1) + (projectsPaused.size()<1?0:2);
+		int switchValue = (isPauseAll?0:1) + (projectsRemoved.size()<1?0:2);
 		return switch (switchValue) {
-			case 0 -> translatable( join(PAUSE_ALL_KEY,NIL)																												).formatted(Formatting.RED)	;
-			case 1 -> translatable( join(PAUSE_KEY,NIL)	,																							targetProjectNameText	).formatted(Formatting.RED)	;
-			case 2 -> translatable( join(PAUSE_ALL_KEY	,	playerPlurality,	projectPlurality	),	playerRemovedCount,	projectsRemovedCount,	playersRemovedList,	projectsRemovedList		)						;
-			case 3 -> translatable( join(PAUSE_KEY		,	playerPlurality					),	playerRemovedCount,	projectsRemovedCount,	playersRemovedList,	projectsRemovedList		)						;
+			case 0 -> translatable( 		STOP_ALL_NIL_KEY																													).formatted(Formatting.RED)	;
+			case 1 -> translatable( 		STOP_NIL_KEY	,																								targetProjectNameText	).formatted(Formatting.RED)	;
+			case 2 -> translatable( join(	STOP_ALL_KEY	,	playerPlurality,	projectPlurality	),	playerRemovedCountText,	projectRemovedCountText,	playersRemovedList,	projectsRemovedList		)						;
+			case 3 -> translatable( join(	STOP_KEY		,	playerPlurality					),	playerRemovedCountText,	projectRemovedCountText,	playersRemovedList,	projectsRemovedList		)						;
 			default -> literal(IMPOSSIBLE_SWITCH).formatted(Formatting.RED);
 		};
-		
 	}
 	
 	public static<T> MutableText provideQueryFeedback(ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, String projectName) {
@@ -165,14 +167,20 @@ public class ProjectFeedback {
 		return (MutableText) literal(literalOfToReturn);
 	}
 	
-	private static String choosePlurality (int count){
+	private static String choosePlurality (int count, String... mood){
 		String internalPlurality = switch (count) {
 			case 0  -> NIL		;
 			case 1  -> SINGLE	;
 			case 2  -> DUAL	;
 			default -> PLURAL	;
 		};
-		String langAdjustedPlurality= translatable( join(PLURALITY_KEY,internalPlurality)).getString();
+		String langAdjustedPlurality;
+		if( mood!= null && mood.length>0){
+			langAdjustedPlurality= translatable( join(PLURALITY_KEY,mood[0],internalPlurality)).getString();
+		}
+		else{
+			langAdjustedPlurality= translatable( join(PLURALITY_KEY,     internalPlurality)).getString();
+		}
 		return langAdjustedPlurality;
 	}
 }

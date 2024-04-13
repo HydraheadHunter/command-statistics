@@ -203,7 +203,7 @@ public class StatisticsCommand {
 /* /stats store  @p killedB [E]                  */	   )
 /* /stats store  @p killedB                      */	  )
 /* /stats store  @p custom                       */	  .then(		CommandManager.literal (CUSTOM	 )
-/* /stats store  @p custom  [i]                  */	   .then(		CommandManager.argument(STAT		 , EntityTypeArgumentType.type(access))
+/* /stats store  @p custom  [i]                  */	   .then(		CommandManager.argument(STAT		 , RegistryEntryArgumentType.registryEntry(access, RegistryKeys.CUSTOM_STAT))
 /* /stats store  @p custom  [i]                # */						    .suggests(			   new CustomStatsSuggestionProvider() )
 /* /stats store  @p custom  [i] [score]          */	    .then(	CommandManager.argument(OBJECTIVE	 , ScoreboardObjectiveArgumentType.scoreboardObjective())
 /* /stats store  @p custom  [i] [score]        % */						    .executes( (context) -> decodeExecutionMode( context, EN_STORE*EN_CUSTOM))
@@ -366,7 +366,7 @@ public class StatisticsCommand {
 /* /stats pjt store @p [N] killedB [E]           */	     )
 /* /stats pjt store @p [N] killedB               */	    )
 /* /stats pjt store @p [N] custom                */	    .then(	CommandManager.literal (CUSTOM  )
-/* /stats pjt store @p [N] custom  [i]           */	     .then(	CommandManager.argument(STAT   ,EntityTypeArgumentType.type(access))
+/* /stats pjt store @p [N] custom  [i]           */	     .then(	CommandManager.argument(STAT   , RegistryEntryArgumentType.registryEntry(access, RegistryKeys.CUSTOM_STAT))
 /* /stats pjt store @p [N] custom  [i]         # */						    .suggests( new CustomStatsSuggestionProvider() )
 /* /stats pjt store @p [N] custom  [i] [score]   */	      .then(	CommandManager.argument(OBJECTIVE   , ScoreboardObjectiveArgumentType.scoreboardObjective())
 /* /stats pjt store @p [N] custom  [i] [score] % */						    .executes( (context) -> decodeExecutionMode( context, EN_STORE*EN_CUSTOM*EN_PROJECT))
@@ -878,8 +878,8 @@ public class StatisticsCommand {
 		
 		if (arg%EN_PROJECT==0) projectName = StringArgumentType.getString(context,PROJECT_NAME);
 		
-          if( arg%EN_QUERY==0) return (arg%EN_PROJECT==0) ? executeProjectQUERY( context, players, statType, (T) statSpec, projectName ): executeQUERY( source, players, statType, (T) statSpec );
-          if( arg%EN_STORE==0) return (arg%EN_PROJECT==0) ? executeProjectSTORE( context, players, statType, (T) statSpec, objective, projectName ):executeSTORE( source, players, statType, (T) statSpec, objective );
+          if( arg%EN_QUERY==0) return (arg%EN_PROJECT==0) ? executeProjectQUERY( context, players, statType, (T) statSpec,            projectName ): executeQUERY( source, players, statType, (T) statSpec );
+          if( arg%EN_STORE==0) return (arg%EN_PROJECT==0) ? executeProjectSTORE( context, players, statType, (T) statSpec, objective, projectName ): executeSTORE( source, players, statType, (T) statSpec, objective );
           if( arg % EN_ADD   ==0) {
                if (arg % EN_FLAT * arg % EN_INT == 0) return ( arg % EN_UNIT == 0 ) ? executeADD   (source, players, statType, (T) statSpec, amount,    unitStr) :
                                                                                       executeADD   (source, players, statType, (T) statSpec, amount            ) ;
@@ -901,6 +901,8 @@ public class StatisticsCommand {
          
          return -1;
     }
+    
+    
 // /statistics query @p stat_type stat <EXECUTE>
      private static <T> int executeQUERY(ServerCommandSource source, Collection<ServerPlayerEntity> targets, StatType<T> statType, T statSpec                    ) throws CommandSyntaxException {
           int toReturn=0;
@@ -975,13 +977,10 @@ public class StatisticsCommand {
 			}
 			
                iPlayerProjectSaver iPlayer = (iPlayerProjectSaver) player;
-			
-			handler.save();
-				if (iPlayer.addDirectory(directory)) {
-					playersAdded.add(player);
-					numberOfPlayersAdded += 1;
-				}
-			handler.save();
+			if (iPlayer.addDirectory(directory)) {
+				playersAdded.add(player);
+				numberOfPlayersAdded += 1;
+			}
 			
 			numberofPlayersChecked+=1;
           }
@@ -1009,32 +1008,28 @@ public class StatisticsCommand {
 			iPlayerProjectSaver iPlayer = (iPlayerProjectSaver) player;
 			
 			if (isPauseAll){
-				handler.save();
-					Collection<File> projectDirectories =   iPlayer.getProjectDirectories();
-					if (projectDirectories.size()>0) { playersPaused.add(player); }
-					for (File directory: projectDirectories) {
-						if ( ! projectsPaused.contains(directory) ){
-							projectsPaused.add(directory);
-						}
+				Collection<File> projectDirectories =   iPlayer.getProjectDirectories();
+				if (projectDirectories.size()>0) { playersPaused.add(player); }
+				for (File directory: projectDirectories) {
+					if ( ! projectsPaused.contains(directory) ){
+						projectsPaused.add(directory);
 					}
-					numberProjectsPaused+=projectDirectories.size();
-					iPlayer.softResetDirectories();
-				handler.save();
+				}
+				numberProjectsPaused+=projectDirectories.size();
+				iPlayer.softResetDirectories();
 			}
 			else{
 				File directory = new File( constructProjectDirectoryName(player,projectName));
-				handler.save();
-					if(iPlayer.pauseDirectory(directory)){
-						
-						if ( ! playersPaused.contains(player))
-							playersPaused.add(player);
-						
-						if ( ! projectsPaused.contains(directory))
-							projectsPaused.add(directory);
-						
-						numberProjectsPaused+=1;
-					}
-				handler.save();
+				if(iPlayer.pauseDirectory(directory)){
+					
+					if ( ! playersPaused.contains(player))
+						playersPaused.add(player);
+					
+					if ( ! projectsPaused.contains(directory))
+						projectsPaused.add(directory);
+					
+					numberProjectsPaused+=1;
+				}
 			}
 		}
 		
@@ -1063,15 +1058,19 @@ public class StatisticsCommand {
 			
 			if (isStopAll){
 				Collection<File> projectDirectories = iPlayer.getProjectDirectories();
-				handler.save();
-					if (projectDirectories.size()>0) { playersRemoved.add(player); }
+				Collection<File> pausedDirectories  = iPlayer.getPausedDirectories();
+				if (projectDirectories.size()+pausedDirectories.size()>0) playersRemoved.add(player);
+				
 					for (File directory: projectDirectories) {
+						if ( ! projectsRemoved.contains(directory) )
+							projectsRemoved.add(directory);
+					}
+					for (File directory: pausedDirectories) {
 						if ( ! projectsRemoved.contains(directory) )
 							projectsRemoved.add(directory);
 					}
 					numberProjectStopped+= projectDirectories.size();
 					iPlayer.resetDirectories();
-				handler.save();
 			}
 			else{
 				File directory = new File( constructProjectDirectoryName(player,projectName));
