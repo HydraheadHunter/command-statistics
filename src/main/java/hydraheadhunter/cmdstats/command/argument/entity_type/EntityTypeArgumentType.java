@@ -1,4 +1,4 @@
-package hydraheadhunter.cmdstats.command.argument;
+package hydraheadhunter.cmdstats.command.argument.entity_type;
 //Code in this file thanks to 7410.
 
 import com.mojang.brigadier.StringReader;

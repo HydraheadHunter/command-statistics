@@ -5,9 +5,10 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import hydraheadhunter.cmdstats.command.argument.BlockArgumentType;
-import hydraheadhunter.cmdstats.command.argument.EntityTypeArgumentType;
-import hydraheadhunter.cmdstats.command.argument.ItemArgumentType;
+import hydraheadhunter.cmdstats.command.argument.block.BlockArgumentType;
+import hydraheadhunter.cmdstats.command.argument.custom_stat.CustomStatArgumentType;
+import hydraheadhunter.cmdstats.command.argument.entity_type.EntityTypeArgumentType;
+import hydraheadhunter.cmdstats.command.argument.item.ItemArgumentType;
 import hydraheadhunter.cmdstats.command.feedback.*;
 import hydraheadhunter.cmdstats.command.suggestionprovider.BreakableItemSuggestionProvider;
 import hydraheadhunter.cmdstats.command.suggestionprovider.CustomStatsSuggestionProvider;
@@ -64,7 +65,7 @@ public class StatisticsCommand {
 	private static final String PROJECT_NAME_RESERVED_ERROR_KEY  = join (ERROR_KEY,PROJECT,"reserved" );
 	private static final String PROJECT_NAME_NOT_FOUND_ERROR_KEY = join (ERROR_KEY,PROJECT,"not_found");
  
-     
+ 
 //TODO: Put QUERY EXECUTION OP in a config file
 //TODO: Implement 'Units' Argument for QUERY | STORE (Format the stat's output in terms of units)
 //Execution OP 1 (Cannot change player statistics )
@@ -132,7 +133,7 @@ public class StatisticsCommand {
 /* /stats query  @p killedB [E]                  */	   )
 /* /stats query  @p killedB                      */	  )
 /* /stats query  @p custom  [i]                  */	  .then(		CommandManager.literal (CUSTOM	 )
-/* /stats query  @p custom  [i]                  */	   .then(		CommandManager.argument(STAT		 , RegistryEntryArgumentType.registryEntry(access, RegistryKeys.CUSTOM_STAT))
+/* /stats query  @p custom  [i]                  */	   .then(		CommandManager.argument(STAT		 , CustomStatArgumentType.stat(access))
 /* /stats query  @p custom  [i]                # */						    .suggests( 		   new CustomStatsSuggestionProvider() )
 /* /stats query  @p custom  [i]                % */						    .executes( (context) -> decodeExecutionMode( context, EN_QUERY*EN_CUSTOM))
 /* /stats query  @p custom  [i]                  */	   )
@@ -203,8 +204,7 @@ public class StatisticsCommand {
 /* /stats store  @p killedB [E]                  */	   )
 /* /stats store  @p killedB                      */	  )
 /* /stats store  @p custom                       */	  .then(		CommandManager.literal (CUSTOM	 )
-/* /stats store  @p custom  [i]                  */	   .then(		CommandManager.argument(STAT		 , RegistryEntryArgumentType.registryEntry(access, RegistryKeys.CUSTOM_STAT))
-/* /stats store  @p custom  [i]                # */						    .suggests(			   new CustomStatsSuggestionProvider() )
+/* /stats store  @p custom  [i]                  */	   .then(		CommandManager.argument(STAT		 , CustomStatArgumentType.stat(access))
 /* /stats store  @p custom  [i] [score]          */	    .then(	CommandManager.argument(OBJECTIVE	 , ScoreboardObjectiveArgumentType.scoreboardObjective())
 /* /stats store  @p custom  [i] [score]        % */						    .executes( (context) -> decodeExecutionMode( context, EN_STORE*EN_CUSTOM))
 /* /stats store  @p custom  [i] [score]          */	    )
@@ -295,8 +295,7 @@ public class StatisticsCommand {
 /* /stats pjt query @p [N] killedB [E]           */	     )
 /* /stats pjt query @p [N] killedB               */	    )
 /* /stats pjt query @p [N] custom  [i]           */	    .then(	CommandManager.literal (CUSTOM	 )
-/* /stats pjt query @p [N] custom  [i]           */	     .then(	CommandManager.argument(STAT		 , RegistryEntryArgumentType.registryEntry(access, RegistryKeys.CUSTOM_STAT))
-/* /stats pjt query @p [N] custom  [i]         # */						    .suggests(			   new CustomStatsSuggestionProvider() )
+/* /stats pjt query @p [N] custom  [i]           */	     .then(	CommandManager.argument(STAT		 , CustomStatArgumentType.stat(access))
 /* /stats pjt query @p [N] custom  [i]         % */						    .executes( (context) -> decodeExecutionMode( context, EN_QUERY*EN_CUSTOM*EN_PROJECT))
 /* /stats pjt query @p [N] custom  [i]           */	     )
 /* /stats pjt query @p [N] custom                */	    )
@@ -366,8 +365,7 @@ public class StatisticsCommand {
 /* /stats pjt store @p [N] killedB [E]           */	     )
 /* /stats pjt store @p [N] killedB               */	    )
 /* /stats pjt store @p [N] custom                */	    .then(	CommandManager.literal (CUSTOM  )
-/* /stats pjt store @p [N] custom  [i]           */	     .then(	CommandManager.argument(STAT   , RegistryEntryArgumentType.registryEntry(access, RegistryKeys.CUSTOM_STAT))
-/* /stats pjt store @p [N] custom  [i]         # */						    .suggests( new CustomStatsSuggestionProvider() )
+/* /stats pjt store @p [N] custom  [i]           */	     .then(	CommandManager.argument(STAT   , CustomStatArgumentType.stat(access))
 /* /stats pjt store @p [N] custom  [i] [score]   */	      .then(	CommandManager.argument(OBJECTIVE   , ScoreboardObjectiveArgumentType.scoreboardObjective())
 /* /stats pjt store @p [N] custom  [i] [score] % */						    .executes( (context) -> decodeExecutionMode( context, EN_STORE*EN_CUSTOM*EN_PROJECT))
 /* /stats pjt store @p [N] custom  [i] [score]   */	      )
@@ -508,7 +506,7 @@ public class StatisticsCommand {
 /* /stats add    @p killedB [E]                  */	     )
 /* /stats add    @p killedB                      */	    )
 /* /stats add    @p custom                       */	    .then(	CommandManager.literal (CUSTOM )
-/* /stats add    @p custom  [I]                  */	     .then(	CommandManager.argument(STAT   , RegistryEntryArgumentType.registryEntry(access, RegistryKeys.CUSTOM_STAT))
+/* /stats add    @p custom  [I]                  */	     .then(	CommandManager.argument(STAT   , CustomStatArgumentType.stat(access))
 /* /stats add    @p custom  [I]                % */						    .executes( (context) -> decodeExecutionMode( context, EN_ADD*EN_CUSTOM*EN_FLAT))
 /* /stats add    @p custom  [I] [int]            */	      .then(	CommandManager.argument(AMOUNT ,IntegerArgumentType.integer())
 /* /stats add    @p custom  [I] [int]          % */						    .executes( (context) -> decodeExecutionMode( context, EN_ADD*EN_CUSTOM*EN_INT))
@@ -657,7 +655,7 @@ public class StatisticsCommand {
 /* /stats reduce @p killedB [E]                  */	     )
 /* /stats reduce @p killedB                      */	    )
 /* /stats reduce @p custom                       */	    .then(	CommandManager.literal (CUSTOM )
-/* /stats reduce @p custom  [I]                  */	     .then(	CommandManager.argument(STAT   , RegistryEntryArgumentType.registryEntry(access, RegistryKeys.CUSTOM_STAT))
+/* /stats reduce @p custom  [I]                  */	     .then(	CommandManager.argument(STAT   , CustomStatArgumentType.stat(access))
 /* /stats reduce @p custom  [I]                % */						    .executes( (context) -> decodeExecutionMode( context, EN_REDUCE*EN_CUSTOM*EN_FLAT))
 /* /stats reduce @p custom  [I] [int]            */	      .then(	CommandManager.argument(AMOUNT ,IntegerArgumentType.integer())
 /* /stats reduce @p custom  [I] [int]          % */						    .executes( (context) -> decodeExecutionMode( context, EN_REDUCE*EN_CUSTOM*EN_INT))
@@ -805,8 +803,8 @@ public class StatisticsCommand {
 /* /stats set    @p killedB [I] [score]          */	  )
 /* /stats set    @p killedB [E]                  */	  )
 /* /stats set    @p killedB                      */	  )
-/* /stats set    @p custom                       */	  .then(		CommandManager.literal (		CUSTOM )
-/* /stats set    @p custom  [I]                  */	  .then(		CommandManager.argument(STAT   , RegistryEntryArgumentType.registryEntry(access, RegistryKeys.CUSTOM_STAT))
+/* /stats set    @p custom                       */	  .then(		CommandManager.literal (CUSTOM )
+/* /stats set    @p custom  [I]                  */	  .then(		CommandManager.argument(STAT   , CustomStatArgumentType.stat(access))
 /* /stats set    @p custom  [I]                % */						    .executes( (context) -> decodeExecutionMode( context, EN_SET*EN_CUSTOM*EN_FLAT))
 /* /stats set    @p custom  [I] [int]            */	  .then(		CommandManager.argument(AMOUNT ,IntegerArgumentType.integer())
 /* /stats set    @p custom  [I] [int]          % */						    .executes( (context) -> decodeExecutionMode( context, EN_SET*EN_CUSTOM*EN_INT))
@@ -868,7 +866,7 @@ public class StatisticsCommand {
                }
           else if (arg % EN_CUSTOM==0){
                statType   = (StatType<T>)Stats.CUSTOM;
-               statID     = (Identifier) RegistryEntryArgumentType.getRegistryEntry( context, STAT, RegistryKeys.CUSTOM_STAT).value();
+               statID     = (Identifier) CustomStatArgumentType.getStat( context, STAT).getID();
           }
           else {
                source.sendFeedback(()-> literal("Support for this stat type has not been implemented").formatted(Formatting.RED),false);

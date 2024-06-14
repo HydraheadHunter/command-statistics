@@ -1,4 +1,4 @@
-package hydraheadhunter.cmdstats.command.argument;
+package hydraheadhunter.cmdstats.command.argument.block;
 //Code in this file thanks to 7410.
 
 import com.mojang.brigadier.StringReader;
@@ -12,6 +12,7 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.command.ServerCommandSource;
+
 
 import java.util.Arrays;
 import java.util.Collection;
