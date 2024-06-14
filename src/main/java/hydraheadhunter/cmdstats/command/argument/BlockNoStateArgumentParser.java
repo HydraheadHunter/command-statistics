@@ -31,7 +31,7 @@ public class BlockNoStateArgumentParser {
     private final RegistryWrapper<Block> registryWrapper;
     private final StringReader reader;
     private final boolean allowTag;
-    private Identifier blockId = new Identifier("");
+    private Identifier blockId = Identifier.of("");
     @Nullable private Block block;
     @Nullable private RegistryEntryList<Block> tagId;
     private Function<SuggestionsBuilder, CompletableFuture<Suggestions>> suggestions = SUGGEST_DEFAULT;

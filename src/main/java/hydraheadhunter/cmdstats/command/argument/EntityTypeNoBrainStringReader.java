@@ -30,7 +30,7 @@ public class EntityTypeNoBrainStringReader {
     private final RegistryWrapper<EntityType<?>> registryWrapper;
     private final StringReader reader;
     private final boolean allowTag;
-    private Identifier entityTypeID = new Identifier("");
+    private Identifier entityTypeID = Identifier.of("");
     
     @Nullable private EntityType<?> entityType;
     @Nullable private RegistryEntryList<EntityType<?>> tagId;

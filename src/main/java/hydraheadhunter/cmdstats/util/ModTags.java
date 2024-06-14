@@ -39,7 +39,7 @@ public class ModTags {
 
 
           public static TagKey<Block> createTag(String name){
-               return TagKey.of(RegistryKeys.BLOCK, new Identifier(CommandStatistics.MOD_ID, name));
+               return TagKey.of(RegistryKeys.BLOCK, Identifier.of(CommandStatistics.MOD_ID, name));
 
           }
 
@@ -72,7 +72,7 @@ public class ModTags {
           public static final TagKey<Item> IS_GENDER_15              = createTag("is_gender_15"           );
 
           public static TagKey<Item> createTag(String name){
-               return TagKey.of(RegistryKeys.ITEM, new Identifier(CommandStatistics.MOD_ID, name));
+               return TagKey.of(RegistryKeys.ITEM, Identifier.of(CommandStatistics.MOD_ID, name));
 
           }
      }
@@ -108,7 +108,7 @@ public class ModTags {
           
 
           public static TagKey<EntityType<?>> createTag(String name){
-               return TagKey.of(RegistryKeys.ENTITY_TYPE, new Identifier(CommandStatistics.MOD_ID, name));
+               return TagKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of(CommandStatistics.MOD_ID, name));
 
           }
      }
@@ -140,7 +140,7 @@ public class ModTags {
           
           
           public static TagKey<Identifier> createTag(String name){
-               return TagKey.of(RegistryKeys.CUSTOM_STAT, new Identifier(CommandStatistics.MOD_ID, name));
+               return TagKey.of(RegistryKeys.CUSTOM_STAT, Identifier.of(CommandStatistics.MOD_ID, name));
 
           }
      }

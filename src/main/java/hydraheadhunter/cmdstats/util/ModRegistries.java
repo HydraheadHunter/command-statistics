@@ -16,16 +16,16 @@ public class ModRegistries {
           CommandRegistrationCallback.EVENT.register(StatisticsCommand::registerSTATISITCS);
           
           ArgumentTypeRegistry.registerArgumentType(
-               new Identifier(MOD_ID, "block"),
+               Identifier.of(MOD_ID, "block"),
                BlockArgumentType.class, ConstantArgumentSerializer.of(BlockArgumentType::block)
           );
           
           ArgumentTypeRegistry.registerArgumentType(
-               new Identifier(MOD_ID, "item"),
+               Identifier.of(MOD_ID, "item"),
                ItemArgumentType.class, ConstantArgumentSerializer.of(ItemArgumentType::item)
           );
           ArgumentTypeRegistry.registerArgumentType(
-               new Identifier(MOD_ID, "entity"),
+               Identifier.of(MOD_ID, "entity"),
                EntityTypeArgumentType.class, ConstantArgumentSerializer.of(EntityTypeArgumentType::type)
           );
      }
