@@ -7,13 +7,17 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.IndexedIterable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import hydraheadhunter.cmdstats.util.ModRegistries;
+
+import java.util.Iterator;
 
 public class CommandStatistics implements ModInitializer {
 	public static final String MOD_ID 		= "cmdstats"		;
@@ -155,7 +159,14 @@ public class CommandStatistics implements ModInitializer {
 	
 	
 	public static boolean customStatIsIn( Identifier stat, TagKey<Identifier> tagKey) {
-		return Stats.CUSTOM.getRegistry().getEntry(stat).isIn( tagKey );
+		Registry<Identifier> customStats = Stats.CUSTOM.getRegistry();
+		IndexedIterable<RegistryEntry<Identifier>> customStatsItt_able = customStats.getIndexedEntries();
+		for (RegistryEntry<Identifier> registryEntry : customStatsItt_able) {
+			if (registryEntry.matchesId(stat)) {
+				return registryEntry.isIn(tagKey);
+			}
+		}
+		return false;
 	}
 
 	@SuppressWarnings({ "DataFlowIssue", "unused" })
