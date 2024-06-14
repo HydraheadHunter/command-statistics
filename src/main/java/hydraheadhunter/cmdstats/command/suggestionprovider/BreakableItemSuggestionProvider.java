@@ -32,7 +32,7 @@ public class BreakableItemSuggestionProvider implements SuggestionProvider<Serve
           return null;
      }
      private static boolean isDamageable(Item item) throws NullPointerException{
-          try { return item.getDefaultStack().getComponents().get(DataComponentTypes.DAMAGE)>0; }
+          try { return item.getDefaultStack().isDamageable(); }
           catch (NullPointerException e) {return false;}
      }
      
