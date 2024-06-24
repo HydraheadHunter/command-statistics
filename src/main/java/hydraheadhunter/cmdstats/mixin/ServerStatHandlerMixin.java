@@ -11,7 +11,8 @@ import net.minecraft.stat.Stat;
 import net.minecraft.stat.StatHandler;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.Identifier;
-import org.apache.logging.log4j.core.jmx.Server;import org.jetbrains.annotations.Nullable;import org.spongepowered.asm.mixin.Mixin;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,9 +30,9 @@ public abstract class ServerStatHandlerMixin extends StatHandler implements iSta
 	@Shadow private MinecraftServer server;
 	@Shadow private File file;
 
-	private Logger MIXIN_LOGGER  = LogUtils.getLogger();
-	private static String LOGGER_PREFIX = CommandStatistics.MOD_ID + " ServerStatHandler Mixin: ";
-	private static boolean DEBUG_MIXIN  = CommandStatistics.CONFIG_MIXIN_DEBUG;
+	private final Logger MIXIN_LOGGER  = LogUtils.getLogger();
+	private static final String LOGGER_PREFIX = CommandStatistics.MOD_ID + " ServerStatHandler Mixin: ";
+	private static final boolean DEBUG_MIXIN  = CommandStatistics.CONFIG_MIXIN_DEBUG;
 
 	protected ServerStatHandlerMixin(MinecraftServer server, File file) { super();	}
 

@@ -17,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import hydraheadhunter.cmdstats.util.ModRegistries;
 
-import java.util.Iterator;
-
 import static hydraheadhunter.cmdstats.util.units.iUnit.*;
 
 public class CommandStatistics implements ModInitializer {
@@ -109,13 +107,13 @@ public class CommandStatistics implements ModInitializer {
 	}
 	
 	
-	public static String join ( String @NotNull ... strings){
+	public static String join       ( String @NotNull ... strings){
 		String toReturn = "";
 		for ( String str : strings)
 			if (!str.equals(EMPTY)) toReturn = str.equals(strings[0]) ? strings[0]:String.join(".", toReturn, str) ;
 		return toReturn;
 	}
-	public static String join_nl ( String @NotNull ... strings){
+	public static String join_nl    ( String @NotNull ... strings){
 		String toReturn = "";
 		for ( String str : strings)
 			if (!str.equals(EMPTY)) toReturn = str.equals(strings[0]) ? strings[0]:String.join("\n", toReturn, str) ;
@@ -147,8 +145,8 @@ public class CommandStatistics implements ModInitializer {
 	public static <T> String castStat (T statSpecific  ){
 		try { ((Block) statSpecific ).getName()			; return BLOCK ; } catch (ClassCastException e1) { String block 	= "not Block"  ;}
 		try { ((Item) statSpecific ).getName()			; return ITEM  ; } catch (ClassCastException e2) { String Item  	= "not Item"   ;}
-		try { ((EntityType<?>) statSpecific ).getName()	; return ENTITY; } catch (ClassCastException e3) { String Entity	= "not Entity"	;}
-		try { ( (Identifier) statSpecific ).getPath()	; return ID	; } catch (ClassCastException e3) { String Id 	= "not ID"	;}
+		try { ( (EntityType<?>) statSpecific ).getName()	; return ENTITY; } catch (ClassCastException e3) { String Entity	= "not Entity"	;}
+		try { ( (Identifier)    statSpecific ).getPath()	; return ID	; } catch (ClassCastException e3) { String Id 	= "not ID"	;}
 		return join(NO_SUCH,STAT_TYPE);
 	}
 	
