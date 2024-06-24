@@ -62,12 +62,6 @@ public interface iUnit {
 		return toReturn;
 	}
 	
-	static ArrayList<String> UnitTypeNames( ArrayList<iUnit> unitType ){
-		ArrayList<String> toReturn= new ArrayList<>();
-		//for(iUnit iu: unitType){ toReturn.addAll(iu.EQ_UNITS); }
-		return toReturn;
-	}
-	
 	ArrayList<String> getEqUnits();
 	double getConversionFactor();
 	String getTranslationKey();
