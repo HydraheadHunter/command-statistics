@@ -76,6 +76,23 @@ public abstract class ServerStatHandlerMixin extends StatHandler implements iSta
      		return null;
      	}
 		
+	public boolean isProjectActive(ServerStatHandler serverStatHandler){
+		iStatHandlerMixin iHandler_arg = (iStatHandlerMixin) serverStatHandler;
+		File file = iHandler_arg.getFile();
+		
+		try{
+			for(ServerStatHandler handler: projectStatHandlers){
+				iStatHandlerMixin iHandler= (iStatHandlerMixin) (StatHandler) handler;
+				File checkFile = iHandler.getFile();
+				if (file.toString().equals(checkFile.toString())){
+					return true;
+				}
+			}
+		}
+		catch (NullPointerException ignored) { }
+		return false;
+	}
+	
 	public File getFile (){ return this.file; }
 
 	@Inject( method= "save", at=@At("HEAD"))
@@ -100,7 +117,7 @@ public abstract class ServerStatHandlerMixin extends StatHandler implements iSta
 		boolean isExemptDebugging=
 		 ( stat.getType().equals(Stats.CUSTOM) &&
 			 ( customStatIsIn( (Identifier) stat.getValue(), ModTags.Identifiers.IS_TIME	 )	||
-			   customStatIsIn( (Identifier) stat.getValue(), ModTags.Identifiers.IS_REAL_TIME)	||
+			   customStatIsIn( (Identifier) stat.getValue(), ModTags.Identifiers.IS_MC_TIME)	||
 			   customStatIsIn( (Identifier) stat.getValue(), ModTags.Identifiers.IS_DISTANCE )
 			 )		)	;
 			int valueDif = Math.max(0,value - this.getStat(stat));

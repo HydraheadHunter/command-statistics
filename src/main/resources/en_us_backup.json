@@ -1,4 +1,97 @@
 {
+  "mod_id": "cmdstats",
+
+  "system": "system",
+  "cmdstats.system":"things which control logic in within the mod.",
+
+  "grammar": "grammar",
+  "cmdstats.system.grammar": "things which control the grammar'd output of feedback's component parts",
+
+  "gender": "gender",
+  "cmdstats.system.grammar.gender_": "things which control the gender of nouns thing",
+  "cmdstats.system.grammar.gender_1"          : "%ss",
+  "cmdstats.system.grammar.gender_1.members"  : "[]",
+  "cmdstats.system.grammar.gender_2"          : "%ses",
+  "cmdstats.system.grammar.gender_2.members"  : "[]",
+  "cmdstats.system.grammar.gender_3"          : "pair of %s",
+  "cmdstats.system.grammar.gender_3.members"  : "[]",
+  "cmdstats.system.grammar.gender_4"          : "a %s",
+  "cmdstats.system.grammar.gender_4.members"  : "[]",
+  "cmdstats.system.grammar.gender_5"          : "an %s",
+  "cmdstats.system.grammar.gender_5.members"  : "[]",
+  "cmdstats.system.grammar.gender_6."         : "the %s",
+  "cmdstats.system.grammar.gender_6.members"  : "[]",
+  "cmdstats.system.grammar.irregular."        : "everything else that can't be so easily conjugated",
+  "cmdstats.system.grammar.irregular.members" : "[]",
+
+  "plurality": "plurality",
+  "cmdstats.system.grammar.plurality": "Having to do with how many of a thing there are",
+  "nil": "0",  "one": "1",  "two": "2",  "gen": ">=3",  "lot": "a lot more than 3",
+
+
+  "feedback": "feedback",
+  "cmdstats.feedback": "For determining the final output past logic",
+  "format": "format",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  "verb": "for actions",
+  "cmdstats.feedback.verb.mined"             : "mined",
+  "cmdstats.feedback.verb.crafted"           : "crafted",
+  "cmdstats.feedback.verb.used"              : "used",
+  "cmdstats.feedback.verb.broken"            : "broken",
+  "cmdstats.feedback.verb.picked_up"         : "picked up",
+  "cmdstats.feedback.verb.dropped"           : "dropped",
+  "cmdstats.feedback.verb.killed"            : "killed",
+  "cmdstats.feedback.verb.killed_by"         : "been killed by",
+  "cmdstats.feedback.verb.custom"            : "interacted with",
+  "cmdstats.feedback.verb.mined.present"     : "mine",
+  "cmdstats.feedback.verb.crafted.present"   : "craft",
+  "cmdstats.feedback.verb.used.present"      : "use",
+  "cmdstats.feedback.verb.broken.present"    : "break",
+  "cmdstats.feedback.verb.picked_up.present" : "pick up",
+  "cmdstats.feedback.verb.dropped.present"   : "drop",
+  "cmdstats.feedback.verb.killed.present"    : "kill",
+  "cmdstats.feedback.verb.killed_by.present" : "get killed by",
+  "cmdstats.feedback.verb.custom.present"    : "interact with",
+
+  "noun": "noun",
+  "cmdstats.feedback.noun": "For people, places, things",
+  "cmdstats.feedback.noun.gender_1"    : "%ss",
+  "cmdstats.feedback.noun.gender_2"    : "%ses",
+  "cmdstats.feedback.noun.gender_3"    : "a pair of %s",
+  "cmdstats.feedback.noun.gender_4"    : "a %s",
+  "cmdstats.feedback.noun.gender_5"    : "an %s",
+  "cmdstats.feedback.noun.gender_6"    : "the %s",
+
+  "cmdstats.feedback.noun.gender_1.one": "%s",
+  "cmdstats.feedback.noun.gender_2.one": "%s",
+  "cmdstats.feedback.noun.gender_3.one": "a pair of %s",
+  "cmdstats.feedback.noun.gender_4.one": "a %s",
+  "cmdstats.feedback.noun.gender_5.one": "an %s",
+  "cmdstats.feedback.noun.gender_6.one": "the %s",
+
+  "cmdstats.feedback.noun.gender_1.gen": "%ss",
+  "cmdstats.feedback.noun.gender_2.gen": "%ses",
+  "cmdstats.feedback.noun.gender_3.gen": "pairs of %s",
+  "cmdstats.feedback.noun.gender_4.gen": "%s",
+  "cmdstats.feedback.noun.gender_5.gen": "%s",
+  "cmdstats.feedback.noun.gender_6.gen": "the %s",
+
+  "irregular": "irregular",
+  "cmdstats.feedback.noun.irregular": "for each noun that counldn't fit neatly into one of the other genders"
+
   "join.new_line": "%s\n  %s",
   "feedback.project.list"             : "%s has %s active projects",
   "feedback.project.list.paused"      : "%s has %s inactive projects",

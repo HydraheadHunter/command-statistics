@@ -1,35 +1,47 @@
 package hydraheadhunter.cmdstats.command.feedback;
 
-import hydraheadhunter.cmdstats.command.feedback.lang.ConjugateStat;
-import hydraheadhunter.cmdstats.command.feedback.lang.ConjugateStatType;
-import hydraheadhunter.cmdstats.command.feedback.lang.FormatCustom;
-import hydraheadhunter.cmdstats.util.ModTags;
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
+import hydraheadhunter.cmdstats.command.feedback.lang.KeySelector;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.stat.Stats;
 import net.minecraft.stat.StatType;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 
 import static hydraheadhunter.cmdstats.CommandStatistics.*;
+import static java.lang.String.valueOf;
 import static net.fabricmc.fabric.api.tag.convention.v1.TagUtil.isIn;
-import static net.minecraft.text.Text.stringifiedTranslatable;
+import static net.minecraft.text.Text.*;
+import static hydraheadhunter.cmdstats.command.feedback.CommonFields.*;
 
 public class QueryFeedback {
-     private static final String BASE_KEY    = join( FEEDBACK_KEY , QUERY    );
-     private static final String INTEGER_KEY = join( BASE_KEY     , INTEGER  );
-     private static final String SCORE_KEY   = join( BASE_KEY     , SCORE    );
+     private static final String QUERY_KEY = "cmdstats.feedback.query";
+     private static final String BASIC_KEY = "basic";
      
-     private static final String ERROR_STAT_TYPE = join( ERROR_KEY, NO_SUCH, STAT_TYPE);
-     private static final String JOIN_COLON      = join( JOIN_KEY  , "2", COLON       );
-     private static final String CUSTOM_KEY      = join( BASE_KEY  , CUSTOM           );
-     private static final int[] A_LOT_int = {100000, 50000, 5000, 100000};
+     public static <T> MutableText provideBasicFeedback(ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue){
+          String statTypeKey=  KeySelector.selectBasicStatTypeKey(statType.getName().toString());
+          String statSpecKey=  KeySelector.selectStatKey( statSpec.toString());
+          
+          MutableText playerNameText= ((MutableText) player.getName())                                                               .formatted(PLAYER_NAME_FORMAT);
+          MutableText statNameText =                literal( KeySelector.abbreviateMinecraft( join_colon(statTypeKey, statSpecKey)) ) .formatted(STAT_FORMAT  );
+          MutableText statValueText=                literal( valueOf(statValue))                                                     .formatted(VALUE_FORMAT );
+          return translatable( join(QUERY_KEY,BASIC_KEY), playerNameText, statNameText, statValueText);
+     }
+     public static <T> MutableText provideBasicUnitFeedback(ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, String unitKey){
+          String statTypeKey=  KeySelector.selectBasicStatTypeKey(statType.getName().toString());
+          String statSpecKey=  KeySelector.selectStatKey( statSpec.toString());
+          
+          MutableText playerNameText= ((MutableText) player.getName())                                                               .formatted(PLAYER_NAME_FORMAT);
+          MutableText statNameText =                literal( KeySelector.abbreviateMinecraft( join_colon(statTypeKey, statSpecKey)) ) .formatted(STAT_FORMAT  );
+          MutableText statValueText=                literal( valueOf(statValue))                                                     .formatted(VALUE_FORMAT );
+          MutableText unitText     =                translatable( join(unitKey,"label") );
+          return translatable( join(QUERY_KEY,BASIC_KEY,UNIT), playerNameText, statNameText, statValueText,unitText);
+     }
      
+     
+     public static <T> MutableText provideFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue){
+          return null;
+     }
+/*
+
      public  static <T> MutableText provideFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, ServerCommandSource... source ){
           if (statType.equals(Stats.CUSTOM)) return provideCustomFeedback(player, (Identifier) statSpec, statValue, source);
           
@@ -40,7 +52,7 @@ public class QueryFeedback {
           Text playerName           = player.getName();
           Text statTypeText         = ConjugateStatType.conjugateStatType(statType, pluralityConjugate);
           Text statSpecificText     = ConjugateStat.conjugateStat( statSpec,statValue, pluralityConjugate );
-          Text statValueText        = Text.literal( String.valueOf(statValue) );
+          Text statValueText        = Text.literal( valueOf(statValue) );
           
           if (source.length >= 1) {
                Text finalStatSpecificText = statSpecificText;
@@ -113,5 +125,5 @@ public class QueryFeedback {
                
           }
      }
-     
+*/
 }

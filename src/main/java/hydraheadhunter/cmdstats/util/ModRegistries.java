@@ -8,6 +8,10 @@ import hydraheadhunter.cmdstats.command.argument.item.ItemArgumentType;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.stat.Stats;
 import net.minecraft.util.Identifier;
 
 import static hydraheadhunter.cmdstats.CommandStatistics.*;
@@ -32,5 +36,7 @@ public class ModRegistries {
                Identifier.of(MOD_ID, "stat"),
                CustomStatArgumentType.class, ConstantArgumentSerializer.of(CustomStatArgumentType::stat)
           );
+          
+          
      }
 }

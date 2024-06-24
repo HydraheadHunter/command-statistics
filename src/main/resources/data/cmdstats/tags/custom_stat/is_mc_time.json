@@ -4,7 +4,6 @@
   "minecraft:time_since_death",
   "minecraft:time_since_rest",
   "minecraft:sneak_time",
-  "minecraft:play_time",
-  "minecraft:total_world_time"
+  "minecraft:play_time"
 ]
 }

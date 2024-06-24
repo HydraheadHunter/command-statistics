@@ -11,7 +11,7 @@ import java.text.DecimalFormat;
 
 import static hydraheadhunter.cmdstats.CommandStatistics.*;
 public class FormatCustom {
-	private static final String BASE_KEY           = join(FEEDBACK_KEY, QUERY) ;
+/*	private static final String BASE_KEY           = join(FEEDBACK_KEY, QUERY) ;
 	private static final String LOCAL_SYSTEM_KEY   = join(SYSTEM_KEY  , QUERY) ;
 	private static final String TWO_WORDS          = JOIN_KEY + ".2"         ;
 	private static final String THREE_WORDS        = JOIN_KEY + ".3"         ;
@@ -27,28 +27,6 @@ public class FormatCustom {
 	private static int[] A_LOT_int = {100, 20000, 2000000, 500000, 50000, 100 };
 	
 	private static final String SYSTEM_TIME_FORMAT_KEY = join( SYSTEM_KEY, TIME, FORMAT );
-	private static final String SECOND_KEY        = join( BASE_KEY  , TIME, UNIT, SECOND);	private static final String LESSTHANSECOND_KEY= join( SECOND_KEY, LESS_THAN 	    );
-	private static final String MINUTE_KEY		 = join( BASE_KEY  , TIME, UNIT, MINUTE);	private static final String HOUR_KEY 		 = join( BASE_KEY  , TIME, UNIT, HOUR  );
-	private static final String DAY_KEY 		 = join( BASE_KEY  , TIME, UNIT, DAY   );	private static final String MINECRAFT_DAY_KEY = join( DAY_KEY   , MINECRAFT         );
-	private static final String WEEK_KEY          = join( BASE_KEY  , TIME, UNIT, WEEK  );	private static final String MONTH_KEY         = join( BASE_KEY  , TIME, UNIT, MONTH );
-	private static final String YEAR_KEY          = join( BASE_KEY  , TIME, UNIT, YEAR  );
-	
-	private static final String SYSTEM_DISTANCE_FORMAT_KEY = join(SYSTEM_KEY, DISTANCE, FORMAT  	);
-	private static final String CM_KEY			 = join( BASE_KEY  , DISTANCE, UNIT, CENTIMETER	);
-	private static final String M__KEY			 = join( BASE_KEY  , DISTANCE, UNIT, METER    	);
-	private static final String KM_KEY			 = join( BASE_KEY  , DISTANCE, UNIT, KILOMETER 	);
-	private static final String IN_KEY            = join( BASE_KEY  , DISTANCE, UNIT, INCH		);
-	private static final String FT_KEY            = join( BASE_KEY  , DISTANCE, UNIT, FOOT		);
-	private static final String MI_KEY            = join( BASE_KEY  , DISTANCE, UNIT, MILE		);
-	
-	private static final String SYSTEM_DAMAGE_FORMAT_KEY = join( SYSTEM_KEY, DAMAGE, FORMAT  		);
-	private static final String DAMAGE_KEY        = join( BASE_KEY  , DAMAGE  , UNIT, DAMAGE		);
-	private static final String HALF_HEART_KEY    = join( BASE_KEY  , DAMAGE  , UNIT, HALF_HEART	);
-	private static final String HEART_KEY         = join( BASE_KEY  , DAMAGE  , UNIT, HEART		);
-	
-	private static final String SYSTEM_CAKE_FORMAT_KEY = join( SYSTEM_KEY, CAKE, FORMAT		  	);
-	private static final String UNIT_CAKE         = join( BASE_KEY  , CAKE    , UNIT, CAKE		);
-	private static final String UNIT_SLICE        = join( BASE_KEY  , CAKE    , UNIT, SLICE		);
 	
 //time conversions factors
 //distance conversion factors
@@ -233,7 +211,7 @@ public class FormatCustom {
 		
 		String valueString;
 		MutableText toReturn;
-		/**/ if (hasKm) {
+		/**/ /*if (hasKm) {
 			valueString= df.format(statKm);
 			toReturn = Text.stringifiedTranslatable(KM_KEY, (Text.literal(valueString)).formatted(Formatting.AQUA));
 			
@@ -266,7 +244,7 @@ public class FormatCustom {
 		MutableText toReturn;
 		
 		String valueString;
-		/**/ if (hasMi || statFt > 2600) {
+		/**/ /*if (hasMi || statFt > 2600) {
 			String      miString= df.format(statMi);
 			toReturn = Text.stringifiedTranslatable(MI_KEY, Text.literal(miString).formatted(Formatting.AQUA));
 			
@@ -366,5 +344,5 @@ public class FormatCustom {
 		}
 		}
 		
-	
+*/
 }

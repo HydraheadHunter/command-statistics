@@ -106,7 +106,6 @@ public class ModTags {
           public static final TagKey<EntityType<?>> IS_SPECIAL_KILLED         = createTag("is_special_killed"      );
           public static final TagKey<EntityType<?>> IS_SPECIAL_KILLED_BY      = createTag("is_special_killed_by"   );
           
-
           public static TagKey<EntityType<?>> createTag(String name){
                return TagKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of(CommandStatistics.MOD_ID, name));
 
@@ -115,28 +114,13 @@ public class ModTags {
 
      public static class Identifiers{
           public static final TagKey<Identifier> IS_TIME           = createTag("is_time"           );
-          public static final TagKey<Identifier> IS_REAL_TIME      = createTag("is_real_time"      );
-          public static final TagKey<Identifier> IS_TIME_SPENT     = createTag("is_time_spent"     );
+          public static final TagKey<Identifier> IS_MC_TIME        = createTag("is_mc_time"        );
           
-          public static final TagKey<Identifier> IS_DISTANCE       = createTag("is_distance"              );
-          public static final TagKey<Identifier> DISTANCE_M        = createTag("distance_in_metric"       );
-          public static final TagKey<Identifier> DISTANCE_C        = createTag("distance_in_custom"       );
-          public static final TagKey<Identifier> DISTANCE_MC       = createTag("distance_in_m_to_c"       );
-          public static final TagKey<Identifier> DISTANCE_CM       = createTag("distance_in_c_to_m"       );
-          
+          public static final TagKey<Identifier> IS_DISTANCE       = createTag("is_distance"       );
+      
           public static final TagKey<Identifier> IS_DAMAGE         = createTag("is_damage"         );
-          public static final TagKey<Identifier> IS_DEALING        = createTag("is_dealing_damage" );
           
           public static final TagKey<Identifier> IS_CAKE           = createTag("is_cake"           );
-          
-          public static final TagKey<Identifier> HAS_NULL          = createTag("has_null"   );
-          public static final TagKey<Identifier> HAS_SINGLE        = createTag("has_single" );
-          public static final TagKey<Identifier> HAS_DUAL          = createTag("has_dual"   );
-          public static final TagKey<Identifier> HAS_PLURAL        = createTag("has_plural" );
-          public static final TagKey<Identifier> HAS_ALOT          = createTag("has_alot"   );
-          
-          public static final TagKey<Identifier> ARG_ORDER_PLAYER_VALUE_VERB = createTag("arg_order_player_value_verb");
-          public static final TagKey<Identifier> ARG_ORDER_VALUE_PLAYER_VERB = createTag("arg_order_value_player_verb");
           
           
           public static TagKey<Identifier> createTag(String name){
