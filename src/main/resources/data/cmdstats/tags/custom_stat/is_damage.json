@@ -1,0 +1,12 @@
+{
+  "values":
+[
+  "minecraft:damage_dealt",
+  "minecraft:damage_dealt_absorbed",
+  "minecraft:damage_dealt_resisted",
+  "minecraft:damage_taken",
+  "minecraft:damage_blocked_by_shield",
+  "minecraft:damage_absorbed",
+  "minecraft:damage_resisted"
+]
+}

@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "hydraheadhunter.cmdstats.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"ServerStatHandlerMixin",
+		"PlayerProjectSaverMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
