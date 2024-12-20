@@ -1267,7 +1267,8 @@ public class StatisticsCommand {
                          int statValue = handler.getStat(statType, statSpec);
                     handler.save();
                     
-                    int adjustedStatValue = unit.convertTo( isInventory? statValue*determineStackSize(statSpec):statValue);
+                    int adjustedStatValue = unit.convertTo( isInventory? statValue/determineStackSize(statSpec):statValue);
+                    
                     source.sendFeedback(() -> QueryFeedback.provideBasicUnitFeedback(player, statType, statSpec, adjustedStatValue,unitKey),false);
      
                     toReturn +=statValue;
@@ -1688,10 +1689,6 @@ public class StatisticsCommand {
                if (ITEM_UNITS.contains(unitType)) return true;
           }
           catch (ClassCastException ignored) {}
-          
-          
-               
-          
           
           //Custom Stats
           if (CUSTOM_STAT_UNITS.contains(unitType) && !statType.equals(Stats.CUSTOM)) return false;

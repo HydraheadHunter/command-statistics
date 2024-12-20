@@ -20,7 +20,7 @@ public class ItemArgumentType implements ArgumentType<ItemArgument> {
     private final RegistryWrapper<Item> registryWrapper;
     
     public ItemArgumentType(CommandRegistryAccess commandRegistryAccess) {
-        this.registryWrapper = commandRegistryAccess.getWrapperOrThrow(RegistryKeys.ITEM);
+        this.registryWrapper = commandRegistryAccess.getOrThrow(RegistryKeys.ITEM);
     }
     
     public static ItemArgumentType item(CommandRegistryAccess commandRegistryAccess) {

@@ -21,7 +21,7 @@ public class EntityTypeArgumentType implements ArgumentType<EntityTypeArgument> 
     private final RegistryWrapper<EntityType<?>> registryWrapper;
     
     public EntityTypeArgumentType(CommandRegistryAccess commandRegistryAccess) {
-        this.registryWrapper = commandRegistryAccess.getWrapperOrThrow(RegistryKeys.ENTITY_TYPE);
+        this.registryWrapper = commandRegistryAccess.getOrThrow(RegistryKeys.ENTITY_TYPE);
     }
     
     public static EntityTypeArgumentType type(CommandRegistryAccess commandRegistryAccess) {
