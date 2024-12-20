@@ -23,7 +23,7 @@ public class BlockArgumentType implements ArgumentType<BlockArgument> {
     private final RegistryWrapper<Block> registryWrapper;
 
     public BlockArgumentType(CommandRegistryAccess commandRegistryAccess) {
-        this.registryWrapper = commandRegistryAccess.getWrapperOrThrow(RegistryKeys.BLOCK);
+        this.registryWrapper = commandRegistryAccess.getOrThrow(RegistryKeys.BLOCK);
     }
 
     public static BlockArgumentType block(CommandRegistryAccess commandRegistryAccess) {

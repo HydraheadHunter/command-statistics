@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.6-SNAPSHOT'
+	id 'fabric-loom' version '1.9-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -22,15 +22,18 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		"cmdstats" {
+		"template-mod" {
 			sourceSet sourceSets.main
+			sourceSet sourceSets.client
 		}
 	}
 
 }
 
 fabricApi {
-	configureDataGeneration()
+	configureDataGeneration {
+		client = true
+	}
 }
 
 dependencies {

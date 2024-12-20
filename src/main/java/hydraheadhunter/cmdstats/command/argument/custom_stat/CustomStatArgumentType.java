@@ -21,7 +21,7 @@ public class CustomStatArgumentType implements ArgumentType<CustomStatArgument> 
     private final RegistryWrapper<Identifier> registryWrapper;
     
     public CustomStatArgumentType(CommandRegistryAccess commandRegistryAccess) {
-        this.registryWrapper = commandRegistryAccess.getWrapperOrThrow(RegistryKeys.CUSTOM_STAT);
+        this.registryWrapper = commandRegistryAccess.getOrThrow(RegistryKeys.CUSTOM_STAT);
     }
     
     public static CustomStatArgumentType stat(CommandRegistryAccess commandRegistryAccess) {

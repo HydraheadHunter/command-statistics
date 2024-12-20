@@ -13,7 +13,7 @@ public class Day implements iUnit {
 	public static final double CONVERSION_FACTOR = 1728000;
 	public static final String TRANSLATION_KEY = join(KEY_ROOT,UNIT_KEY);
 	
-	public static final ArrayList<String> EQ_UNITS= new ArrayList<>( List.of(new String[] {"day", "days", "D"} ) );
+	public static final ArrayList<String> EQ_UNITS= new ArrayList<>( List.of(new String[] {"day", "days", "d"} ) );
 	
 	@Override	public ArrayList<String> getEqUnits() 			{ return EQ_UNITS			; }
 	@Override	public double 			getConversionFactor() 	{return CONVERSION_FACTOR	; }
