@@ -1188,51 +1188,7 @@ public class StatisticsCommand {
 		return toReturn;
 	}
      
-     private static String constructProjectFileName      ( ServerPlayerEntity player, String projectName){
-          return constructProjectDirectoryName(player,projectName) +
-          "\\" + join( player.getUuidAsString(), "json");
-     }
-     private static String constructProjectDirectoryName ( ServerPlayerEntity player, String projectName){
-          World world = player.getWorld();
-          MinecraftServer server= world.getServer();
-          String sanitizedProjectName = sanitizeString(projectName);
-          
-          boolean isSaves	= (new File( "./saves")).exists();
-          String savesDir	= "/saves";
-          String worldDir	= "/" + world.toString().substring(world.toString().indexOf("[")+1,world.toString().indexOf("]")) ;
-          String statsDir	= "\\stats";
-          String projectDir	= "\\" + sanitizedProjectName;
-          
-          return "." + (isSaves? savesDir:EMPTY) + worldDir + statsDir + projectDir;
-     }
-     private static String constructProjectDirectoryName ( ServerCommandSource source, String projectName){
-          World world = source.getWorld();
-          MinecraftServer server= world.getServer();
-          String sanitizedProjectName = sanitizeString(projectName);
-          
-          boolean isSaves	= (new File( "./saves")).exists();
-          String savesDir	= "/saves";
-          String worldDir	= "/" + world.toString().substring(world.toString().indexOf("[")+1,world.toString().indexOf("]")) ;
-          String statsDir	= "\\stats";
-          String projectDir	= "\\" + sanitizedProjectName;
-          
-          return "." + (isSaves? savesDir:EMPTY) + worldDir + statsDir + projectDir;
-     }
-     
-     private static boolean checkIsProjectNameReserved( CommandContext<ServerCommandSource> context, String projectName){
-          ServerCommandSource source= context.getSource();
-          boolean isReservedProjectName = projectName.equals(ALL);
-          if (isReservedProjectName){
-               source.sendFeedback(()-> ProjectFeedback.provideErrorFeedback( PROJECT_NAME_RESERVED_KEY, projectName),false);
-               return true;
-          }
-          return false;
-     }
-     
-     private static String sanitizeString(String stringToSanitize){
-          return stringToSanitize.replace(".","_");
-     }
-     
+ 
 // /statistics query @p stat_type stat <EXECUTE>
      private static <T> int executeQUERY(ServerCommandSource source, Collection<ServerPlayerEntity> targets, StatType<T> statType, T statSpec                    ) throws CommandSyntaxException {
           int toReturn=0;
@@ -1645,7 +1601,53 @@ public class StatisticsCommand {
           }
      }
      
-	
+     
+     
+     
+     private static String constructProjectFileName      ( ServerPlayerEntity player, String projectName){
+          return constructProjectDirectoryName(player,projectName) +
+          "\\" + join( player.getUuidAsString(), "json");
+     }
+     private static String constructProjectDirectoryName ( ServerPlayerEntity player, String projectName){
+          World world = player.getWorld();
+          MinecraftServer server= world.getServer();
+          String sanitizedProjectName = sanitizeString(projectName);
+          
+          boolean isSaves	= (new File( "./saves")).exists();
+          String savesDir	= "/saves";
+          String worldDir	= "/" + world.toString().substring(world.toString().indexOf("[")+1,world.toString().indexOf("]")) ;
+          String statsDir	= "\\stats";
+          String projectDir	= "\\" + sanitizedProjectName;
+          
+          return "." + (isSaves? savesDir:EMPTY) + worldDir + statsDir + projectDir;
+     }
+     private static String constructProjectDirectoryName ( ServerCommandSource source, String projectName){
+          World world = source.getWorld();
+          MinecraftServer server= world.getServer();
+          String sanitizedProjectName = sanitizeString(projectName);
+          
+          boolean isSaves	= (new File( "./saves")).exists();
+          String savesDir	= "/saves";
+          String worldDir	= "/" + world.toString().substring(world.toString().indexOf("[")+1,world.toString().indexOf("]")) ;
+          String statsDir	= "\\stats";
+          String projectDir	= "\\" + sanitizedProjectName;
+          
+          return "." + (isSaves? savesDir:EMPTY) + worldDir + statsDir + projectDir;
+     }
+     
+     private static boolean checkIsProjectNameReserved( CommandContext<ServerCommandSource> context, String projectName){
+          ServerCommandSource source= context.getSource();
+          boolean isReservedProjectName = projectName.equals(ALL);
+          if (isReservedProjectName){
+               source.sendFeedback(()-> ProjectFeedback.provideErrorFeedback( PROJECT_NAME_RESERVED_KEY, projectName),false);
+               return true;
+          }
+          return false;
+     }
+     
+     private static String sanitizeString(String stringToSanitize){
+          return stringToSanitize.replace(".","_");
+     }
      
      
      private static <T> ArrayList<Object> completelyParseUnit(String unit_arg, StatType<T> statType, T statSpec){

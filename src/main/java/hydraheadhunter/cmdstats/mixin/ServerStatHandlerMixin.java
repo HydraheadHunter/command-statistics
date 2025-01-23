@@ -1,5 +1,9 @@
 package hydraheadhunter.cmdstats.mixin;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.logging.LogUtils;
 import hydraheadhunter.cmdstats.CommandStatistics;
 import hydraheadhunter.cmdstats.util.ModTags;
@@ -18,6 +22,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 import java.io.File;
 import java.util.*;
 
@@ -25,17 +31,21 @@ import static hydraheadhunter.cmdstats.CommandStatistics.customStatIsIn;
 
 @Mixin(ServerStatHandler.class)
 public abstract class ServerStatHandlerMixin extends StatHandler implements iStatHandlerMixin{
+	
 	private Collection<ServerStatHandler> projectStatHandlers;
 	private Collection<ServerStatHandler> pausedStatHandlers;
 	@Shadow private MinecraftServer server;
 	@Shadow private File file;
-
+	
+	@Shadow protected abstract String asString();
+	
 	private final Logger MIXIN_LOGGER  = LogUtils.getLogger();
 	private static final String LOGGER_PREFIX = CommandStatistics.MOD_ID + " ServerStatHandler Mixin: ";
 	private static final boolean DEBUG_MIXIN  = CommandStatistics.CONFIG_MIXIN_DEBUG;
-
+	
 	protected ServerStatHandlerMixin(MinecraftServer server, File file) { super();	}
-
+	
+	
 //iHandler Methods and Helpers
 	public void updateProjectStatHandlers( Collection<File> projectDirectories, Collection<File> pausedDirectories){
 		projectStatHandlers = new ArrayList<>();
@@ -51,7 +61,6 @@ public abstract class ServerStatHandlerMixin extends StatHandler implements iSta
 		String newFileName = directoryString + "\\" +fileName;
 		return new ServerStatHandler( this.server, new File( newFileName) );
 	}
-	
 	
 	public@Nullable ServerStatHandler getProjectStatHandler(File file){
      		try{
@@ -149,5 +158,25 @@ public abstract class ServerStatHandlerMixin extends StatHandler implements iSta
 		//if(DEBUG_MIXIN) MIXIN_LOGGER.info(LOGGER_PREFIX + "injecting updateStatSet()");
 	}
 
-
+	//Prepends a Playername Json object to the stats JSON for offline playerlookup.
+	@Inject(method= "asString", at=@At("TAIL"), cancellable = true)
+	public void injectAsString(CallbackInfoReturnable cir){
+		String fileName = file.getName();
+		PlayerEntity player = server.getPlayerManager().getPlayer( UUID.fromString( fileName.substring(0,fileName.length()-5) ) );
+		String PlayerName= player.getName().getString();
+		
+		String rawJSONstring= (String) cir.getReturnValue();
+		JsonObject rawJSON= new JsonParser().parse(rawJSONstring).getAsJsonObject();
+		JsonElement statsElement= rawJSON.get("stats");
+		JsonElement versionElement= rawJSON.get("DataVersion");
+		
+		JsonObject object = new JsonObject();
+		object.addProperty( "PlayerName", PlayerName);
+		object.add("stats", statsElement);
+		object.add("DataVersion", versionElement);
+		
+		//MIXIN_LOGGER.info( object.toString());
+		cir.setReturnValue( object.toString());
+		
+	}
 }

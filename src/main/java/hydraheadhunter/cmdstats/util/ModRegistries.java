@@ -1,6 +1,8 @@
 package hydraheadhunter.cmdstats.util;
 
 import hydraheadhunter.cmdstats.command.StatisticsCommand;
+import hydraheadhunter.cmdstats.command.StatisticsCommandForOfflinePlayers;
+import hydraheadhunter.cmdstats.command.StatisticsSyncCommand;
 import hydraheadhunter.cmdstats.command.argument.block.BlockArgumentType;
 import hydraheadhunter.cmdstats.command.argument.custom_stat.CustomStatArgumentType;
 import hydraheadhunter.cmdstats.command.argument.entity_type.EntityTypeArgumentType;
@@ -15,6 +17,8 @@ public class ModRegistries {
 
      public static void registerCommands(){
           CommandRegistrationCallback.EVENT.register(StatisticsCommand::registerSTATISITCS);
+          CommandRegistrationCallback.EVENT.register(StatisticsCommandForOfflinePlayers::registerSTATISITCS);
+          CommandRegistrationCallback.EVENT.register(StatisticsSyncCommand::registerSYNC);
           
           ArgumentTypeRegistry.registerArgumentType(
                Identifier.of(MOD_ID, "block"),

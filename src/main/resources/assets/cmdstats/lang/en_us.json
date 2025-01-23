@@ -21,6 +21,8 @@
 "cmdstats.feedback.reduce.objective.unit" : "Reduced stat by %s%s from %s. Now,\n %s",
 "cmdstats.feedback.reduce.objective.zero" : "%s Now,\n %s\n (was %s.)",
 
+"cmdstats.feedback.error.world.not_found"   :"World Not Found: Check that the world and world-folder have exactly the same name before trying again.",
+"cmdstats.feedback.error.player.not_found"  :"Player Not Found: Check spelling and capitalization before trying again.",
 "cmdstats.feedback.error.unit.unrecognized" :"The string \"%s\" is not a recognized unit. \n No changes were made.",
 "cmdstats.feedback.error.unit.nonsense"     :"The unit represented by \"%s\" is a nonsense measurement for %s. \n No changes were made.",
 

@@ -16,7 +16,7 @@ public class QueryFeedback {
      private static final String QUERY_KEY = "cmdstats.feedback.query";
      private static final String BASIC_KEY = "basic";
      
-     public static <T> MutableText provideBasicFeedback(ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue){
+     public static <T> MutableText provideBasicFeedback    (ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue                ){
           String statTypeKey=  KeySelector.selectBasicStatTypeKey(statType.getName().toString());
           String statSpecKey=  KeySelector.selectStatKey( statSpec.toString());
           
@@ -32,6 +32,27 @@ public class QueryFeedback {
           MutableText playerNameText= ((MutableText) player.getName())                                                               .formatted(PLAYER_NAME_FORMAT);
           MutableText statNameText =                literal( KeySelector.abbreviateMinecraft( join_colon(statTypeKey, statSpecKey)) ) .formatted(STAT_FORMAT  );
           MutableText statValueText=                literal( valueOf(statValue))                                                     .formatted(VALUE_FORMAT );
+          MutableText unitText     =                translatable( join(unitKey,"label") );
+          return translatable( join(QUERY_KEY,BASIC_KEY,UNIT), playerNameText, statNameText, statValueText,unitText);
+     }
+     
+     //Feedback for offline players
+     public static <T> MutableText provideBasicFeedback    (String playerName , StatType<T> statType, T statSpec, int statValue                ){
+          String statTypeKey=  KeySelector.selectBasicStatTypeKey(statType.getName().toString());
+          String statSpecKey=  KeySelector.selectStatKey( statSpec.toString());
+          
+          MutableText playerNameText=               literal(playerName)                                                               .formatted(OFFLINE_PLAYER_NAME_FORMAT);
+          MutableText statNameText =                literal( KeySelector.abbreviateMinecraft( join_colon(statTypeKey, statSpecKey)) ) .formatted(STAT_FORMAT  );
+          MutableText statValueText=                literal( valueOf(statValue))                                                      .formatted(VALUE_FORMAT );
+          return translatable( join(QUERY_KEY,BASIC_KEY), playerNameText, statNameText, statValueText);
+     }
+     public static <T> MutableText provideBasicUnitFeedback(String playerName , StatType<T> statType, T statSpec, int statValue, String unitKey){
+          String statTypeKey=  KeySelector.selectBasicStatTypeKey(statType.getName().toString());
+          String statSpecKey=  KeySelector.selectStatKey( statSpec.toString());
+          
+          MutableText playerNameText=               literal( playerName)                                                              .formatted(OFFLINE_PLAYER_NAME_FORMAT);
+          MutableText statNameText =                literal( KeySelector.abbreviateMinecraft( join_colon(statTypeKey, statSpecKey)) ) .formatted(STAT_FORMAT  );
+          MutableText statValueText=                literal( valueOf(statValue))                                                      .formatted(VALUE_FORMAT );
           MutableText unitText     =                translatable( join(unitKey,"label") );
           return translatable( join(QUERY_KEY,BASIC_KEY,UNIT), playerNameText, statNameText, statValueText,unitText);
      }

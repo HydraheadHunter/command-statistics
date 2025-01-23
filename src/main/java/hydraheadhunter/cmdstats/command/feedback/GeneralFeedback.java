@@ -43,9 +43,23 @@ public class GeneralFeedback {
 		
 		return translatable(STORE_KEY, objectiveText, queryText);
 	}
+
+	public static <T> MutableText provideStoreFeedback( String playerName        , StatType<T> statType, T statSpec, int statValue, ScoreboardObjective objective){
+		MutableText objectiveText = ((MutableText) objective.getDisplayName())                                  .formatted(OBJECTIVE_FORMAT);
+		MutableText queryText = QueryFeedback.provideBasicFeedback( playerName, statType, statSpec, statValue )                             ;
+		
+		return translatable(STORE_KEY, objectiveText, queryText);
+	}
+	
 	public static <T> MutableText provideUnitStoreFeedback( ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, ScoreboardObjective objective, String unitKey){
-		MutableText objectiveText = ((MutableText) objective.getDisplayName())                             .formatted(OBJECTIVE_FORMAT);
+		MutableText objectiveText = ((MutableText) objective.getDisplayName())                                          .formatted(OBJECTIVE_FORMAT);
 		MutableText queryText = QueryFeedback.provideBasicUnitFeedback( player, statType, statSpec, statValue, unitKey)                             ;
+	
+		return translatable(STORE_KEY, objectiveText, queryText);
+	}
+	public static <T> MutableText provideUnitStoreFeedback( String playerName        , StatType<T> statType, T statSpec, int statValue, ScoreboardObjective objective, String unitKey){
+		MutableText objectiveText = ((MutableText) objective.getDisplayName())                                              .formatted(OBJECTIVE_FORMAT);
+		MutableText queryText = QueryFeedback.provideBasicUnitFeedback( playerName, statType, statSpec, statValue, unitKey)                             ;
 		
 		return translatable(STORE_KEY, objectiveText, queryText);
 	}
@@ -161,76 +175,5 @@ public class GeneralFeedback {
 		
 	}
 
-
-/*
-
-     // statistics add @p [stat type] [stat] <int> <unit>
-     public  static <T> MutableText provideAddFeedback(ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, int amount, int adjustedAmount, String unit, ServerCommandSource... source ){
-          MutableText amountText = literal(String.valueOf(amount)).formatted(Formatting.GREEN);
-          MutableText amountUnitsText = stringifiedTranslatable(TWO_WORDS, amountText, literal(unit) );
-          MutableText statText;
-          try {statText = chooseStatName(statType,statSpec);} catch (NoSuchFieldException e) {return translatable(NO_SUCH_STAT_TYPE_KEY).formatted(Formatting.RED);}
-          
-          return stringifiedTranslatable(INTEGER_KEY, amountUnitsText, statText, QueryFeedback.provideFeedback(player, statType, statSpec, statValue+adjustedAmount) );
-     }
-     // statistics add @p [stat type] [stat] <scoreboard objective> <unit>
-     public  static <T> MutableText provideAddFeedback(ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, int amount, ScoreboardObjective objective, int adjustedAmount, String unit, ServerCommandSource... source ){
-          MutableText objText    = ((MutableText)objective.getDisplayName()).formatted(Formatting.YELLOW);
-          MutableText amountText = literal(String.valueOf(amount)).formatted(Formatting.GREEN);
-          MutableText amountUnitsText = stringifiedTranslatable(TWO_WORDS, amountText, literal(unit) );
-          
-          MutableText statText;
-          try {statText = chooseStatName(statType,statSpec);} catch (NoSuchFieldException e) {return translatable(NO_SUCH_STAT_TYPE_KEY).formatted(Formatting.RED);}
-          
-          return stringifiedTranslatable(SCORE_KEY, objText, amountUnitsText, statText, QueryFeedback.provideFeedback(player, statType, statSpec, statValue+adjustedAmount) );
-     }
-
-	// statistics set @p [stat type] [stat]  <int> <unit>
-     public  static <T> MutableText provideReduceFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, int amount, int adjustedAmount, String unit, ServerCommandSource... source ){
-          Text playerName = player.getName();
-          MutableText amountText = Text.literal(String.valueOf(amount)).formatted(Formatting.GREEN);
-          MutableText amountUnitsText = stringifiedTranslatable(TWO_WORDS, amountText, literal(unit) );
-          MutableText statText;
-          try {statText = chooseStatName(statType,statSpec);} catch (NoSuchFieldException e) {return Text.translatable(NO_SUCH_STAT_TYPE_KEY).formatted(Formatting.RED);}
-          
-          return adjustedAmount > statValue ?
-          stringifiedTranslatable( join( INTEGER_KEY, NOT_ENOUGH ), playerName, amountUnitsText, statText, QueryFeedback.provideFeedback(player, statType, statSpec, MINIMUM_STAT_VALUE) ):
-          stringifiedTranslatable      ( INTEGER_KEY              , statText  , amountUnitsText,           QueryFeedback.provideFeedback(player, statType, statSpec, statValue-adjustedAmount  ) );
-     }
-	// statistics set @p [stat type] [stat] <scoreboard objective> <unit>
-     public  static <T> MutableText provideReduceFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, int amount, ScoreboardObjective objective, int adjustedAmount, String unit, ServerCommandSource... source ){
-          Text playerName = player.getName();
-          MutableText objText    = ((MutableText)objective.getDisplayName()).formatted(Formatting.YELLOW);
-          MutableText amountText = Text.literal(String.valueOf(amount)).formatted(Formatting.GREEN);
-          MutableText amountUnitsText = stringifiedTranslatable(TWO_WORDS, amountText, literal(unit) );
-          
-          MutableText statText;
-          try {statText = chooseStatName(statType,statSpec);} catch (NoSuchFieldException e) {return Text.translatable(NO_SUCH_STAT_TYPE_KEY).formatted(Formatting.RED);}
-          
-          return adjustedAmount > statValue ?
-               stringifiedTranslatable( join (SCORE_KEY, NOT_ENOUGH), playerName, objText, amountUnitsText, statText, QueryFeedback.provideFeedback(player, statType, statSpec, MINIMUM_STAT_VALUE) ):
-               stringifiedTranslatable(       SCORE_KEY,              statText  , objText, amountUnitsText,           QueryFeedback.provideFeedback(player, statType, statSpec, statValue-adjustedAmount  ) );
-          
-     }
-
-     // statistics set @p [stat type] [stat] <int> <unit>
-     public  static <T> MutableText provideSetFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, int amount, int adjustedAmount, String unit, ServerCommandSource... source ){
-          MutableText amountText = literal(String.valueOf(amount)).formatted(Formatting.GREEN);
-          MutableText amountUnitsText = stringifiedTranslatable(TWO_WORDS, amountText, literal(unit) );
-          MutableText statText;
-          try {statText = chooseStatName(statType,statSpec);} catch (NoSuchFieldException e) {return translatable(NO_SUCH_STAT_TYPE_KEY).formatted(Formatting.RED);}
-          
-          return stringifiedTranslatable(INTEGER_KEY, statText, amountUnitsText, QueryFeedback.provideFeedback(player, statType, statSpec, adjustedAmount) );
-     }
-     // statistics set @p [stat type] [stat] <scoreboard objective> <unit>
-     public  static <T> MutableText provideSetFeedback ( ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, int amount, ScoreboardObjective objective, int adjustedAmount, String unit, ServerCommandSource... source ){
-          MutableText objText    = ((MutableText)objective.getDisplayName()).formatted(Formatting.YELLOW);
-          MutableText amountText = literal(String.valueOf(amount)).formatted(Formatting.GREEN);
-          MutableText amountUnitsText = stringifiedTranslatable(TWO_WORDS, amountText, literal(unit) );
-          MutableText statText;
-          try {statText = chooseStatName(statType,statSpec);} catch (NoSuchFieldException e) {return translatable(NO_SUCH_STAT_TYPE_KEY).formatted(Formatting.RED);}
-          
-          return stringifiedTranslatable(SCORE_KEY, statText, objText, amountUnitsText, QueryFeedback.provideFeedback(player, statType, statSpec, adjustedAmount) );
-     }
-*/
+	
 }

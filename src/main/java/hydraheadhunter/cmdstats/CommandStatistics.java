@@ -24,11 +24,12 @@ public class CommandStatistics implements ModInitializer {
 	public static final String MINECRAFT	= "minecraft"		;	public static final String MC = "mc";
 	
 	//Defining /statistics
-	public static final String ROOT_COMMAND	= "statistics"	;	public static final String TARGETS     = "targets"   ;	public static final String STAT        = "stat"     ;
-	public static final String AMOUNT       = "amount"  	;	public static final String OBJECTIVE   = "objective" ;
+	public static final String ROOT_COMMAND	= "statistics"	;	public static final String TARGETS     = "targets"   ;
+	public static final String STAT        = "stat"        ;	public static final String AMOUNT       = "amount"   ;	public static final String OBJECTIVE   = "objective" ;
 	
 	public static final String QUERY    	= "query"	 	;	public static final String ADD     = "add"   	;	public static final String STORE	= "store"  ;
 	public static final String SET          = "set"  	 	;	public static final String REDUCE  = "reduce"	;	public static final String PROJECT	= "project";
+	public static final String SYNC		= "sync"		;
 	public static final String INTEGER      = "integer"	;	public static final String SCORE  	= "score" 	;
 	public static final String LIST   		= "list"		;	public static final String START	= "start"		;    public static final String STOP 	= "stop"		;
 	public static final String PAUSE 		= "pause"		;	public static final String ALL  	= "all"  		;	public static final String PROJECT_NAME= "project name";

@@ -111,11 +111,27 @@ public class ProjectFeedback {
 		
 		return translatable(QUERY_KEY, projectNameText, queryText);
 	}
+	public static <T> MutableText provideQueryFeedback(String         playerName, StatType<T> statType, T statSpec, int statValue, String projectName, boolean projectActive){
+		MutableText projectNameText	= literal(projectName)										.formatted( projectActive? ON_PROJECT_NAME_FORMAT:OFF_PROJECT_NAME_FORMAT);
+		MutableText queryText		= QueryFeedback.provideBasicFeedback(playerName,statType,statSpec,statValue);
+		
+		return translatable(QUERY_KEY, projectNameText, queryText);
+	}
+	
+	
+	
 	
 	public static <T> MutableText provideStoreFeedback(ServerPlayerEntity player, StatType<T> statType, T statSpec, int statValue, ScoreboardObjective objective, String projectName, boolean projectActive){
 		MutableText objectiveNameText	= ((MutableText) objective.getDisplayName())							.formatted( OBJECTIVE_FORMAT 										);
 		MutableText projectNameText	= literal(projectName)											.formatted( projectActive? ON_PROJECT_NAME_FORMAT:OFF_PROJECT_NAME_FORMAT	);
 		MutableText queryText		= QueryFeedback.provideBasicFeedback(player,statType,statSpec,statValue);
+		
+		return translatable(STORE_KEY, objectiveNameText, projectNameText, queryText);
+	}
+	public static <T> MutableText provideStoreFeedback(String         playerName, StatType<T> statType, T statSpec, int statValue, ScoreboardObjective objective, String projectName, boolean projectActive){
+		MutableText objectiveNameText	= ((MutableText) objective.getDisplayName())							.formatted( OBJECTIVE_FORMAT 										);
+		MutableText projectNameText	= literal(projectName)											.formatted( projectActive? ON_PROJECT_NAME_FORMAT:OFF_PROJECT_NAME_FORMAT	);
+		MutableText queryText		= QueryFeedback.provideBasicFeedback(playerName,statType,statSpec,statValue);
 		
 		return translatable(STORE_KEY, objectiveNameText, projectNameText, queryText);
 	}
@@ -126,6 +142,13 @@ public class ProjectFeedback {
 		
 		return translatable( join(BASE_KEY,ERROR,error_key), playerNameText, projectNameText);
 	}
+	public static MutableText provideErrorFeedback(String error_key,	String playerName, 	String projectName){
+		MutableText playerNameText 	= literal(playerName );
+		MutableText projectNameText	= literal(projectName);
+		
+		return translatable( join(BASE_KEY,ERROR,error_key), playerNameText, projectNameText);
+	}
+	
 	public static MutableText provideErrorFeedback(String error_key,							String projectName){
 		MutableText projectNameText	= literal(projectName);
 		return translatable( join(BASE_KEY,ERROR,error_key), projectNameText);
